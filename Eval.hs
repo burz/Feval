@@ -5,9 +5,9 @@ module Eval
 import AST
 import Algebra
 
-type BasicAlg = Algebra ExprF CVal
+type EvalAlgebra = Algebra ExprF CVal
 
-alg :: BasicAlg
+alg :: EvalAlgebra
 alg (Const v) = v 
 alg ((CInt x) `Add` (CInt y)) = CInt $ x + y 
 alg ((CInt x) `Mul` (CInt y)) = CInt $ x * y 

@@ -11,6 +11,7 @@ data ExprF a
     | Mul a a 
     | And a a 
     | Or a a
+    | Equal a a
 
 instance Functor ExprF where
     fmap eval (Const i) = Const i
@@ -18,4 +19,5 @@ instance Functor ExprF where
     fmap eval (left `Mul` right) = (eval left) `Mul` (eval right)
     fmap eval (left `And` right) = (eval left) `And` (eval right)
     fmap eval (left `Or` right) = (eval left) `Or` (eval right)
+    fmap eval (left `Equal` right) = (eval left) `Equal` (eval right)
 

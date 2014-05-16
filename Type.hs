@@ -5,7 +5,7 @@ module Type
 
 import qualified Data.Set as Set
 import Control.Monad.State
-import Control.Applicative hiding (Const)
+import Control.Applicative
 
 import AST
 import Algebra
@@ -45,8 +45,8 @@ inconsistent e = Set.fold check False e
           check _ r = r
 
 choose :: Int -> Equation -> FType -> FType
-choose n _ FInt = FInt
-choose n _ FBool = FBool
+choose _ _ FInt = FInt
+choose _ _ FBool = FBool
 choose n (FVar n', y) (FVar n'') = if n /= n' then FVar n'' else case y of
     FInt -> FInt
     FBool -> FBool
@@ -78,8 +78,8 @@ type TypeResult = (FType, Equations)
 type TypeMAlgebra = MAlgebra Counter ExprF TypeResult
 
 alg :: TypeMAlgebra
-alg (Const (CInt _)) = (\_ -> (FInt, Set.empty)) <$> doNothing
-alg (Const (CBool _)) = (\_ -> (FBool, Set.empty)) <$> doNothing
+alg (CInt _) = (\_ -> (FInt, Set.empty)) <$> doNothing
+alg (CBool _) = (\_ -> (FBool, Set.empty)) <$> doNothing
 alg (x `Add` y) = (\(t, e) (t', e') -> (FInt, two_add (t, FInt) (t', FInt) e e')) <$> x <*> y
 alg (x `Mul` y) = (\(t, e) (t', e') -> (FInt, two_add (t, FInt) (t', FInt) e e')) <$> x <*> y
 alg (x `And` y) = (\(t, e) (t', e') -> (FBool, two_add (t, FBool) (t', FBool) e e')) <$> x <*> y

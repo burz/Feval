@@ -1,12 +1,10 @@
 module AST
-( CVal(..)
-, ExprF(..)
+( ExprF(..)
 ) where
 
-data CVal = CInt Int | CBool Bool | MismatchedTypes deriving Show
-
 data ExprF a
-    = Const CVal
+    = CInt Int
+    | CBool Bool
     | Add a a
     | Mul a a
     | And a a
@@ -15,7 +13,8 @@ data ExprF a
     | If a a a
 
 instance Functor ExprF where
-    fmap eval (Const i) = Const i
+    fmap eval (CInt n) = CInt n
+    fmap eval (CBool b) = CBool b
     fmap eval (x `Add` y) = (eval x) `Add` (eval y)
     fmap eval (x `Mul` y) = (eval x) `Mul` (eval y)
     fmap eval (x `And` y) = (eval x) `And` (eval y)

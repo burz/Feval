@@ -3,26 +3,24 @@ import Algebra
 import Type
 import Eval
 
-data Result = Result (CVal, FType) | TypeError deriving Show
+data Result = Result (RVal, FType) | TypeMismatch | InconsistentTypes deriving Show
 
 run :: Fix ExprF -> Result
 run e = case typecheck e of
-    Nothing -> TypeError
-    Just t -> Result (eval e, t)
+    Nothing -> InconsistentTypes
+    Just t -> case eval e of
+        Nothing -> TypeMismatch
+        Just v -> Result (v, t)
 
-intExpr = Fx $ (Fx $ (Fx $ Const (CInt 2)) `Add`
-               (Fx $ Const (CInt 3))) `Mul` (Fx $ Const (CInt 4))
+intExpr = Fx $ (Fx $ (Fx $ CInt 2) `Add` (Fx $ CInt 3)) `Mul` (Fx $ CInt 4)
 
-boolExpr = Fx $ (Fx $ (Fx $ Const (CBool False)) `Or`
-                (Fx $ Const (CBool True))) `And` (Fx $ Const (CBool True))
+boolExpr = Fx $ (Fx $ (Fx $ CBool False) `Or` (Fx $ CBool True)) `And` (Fx $ CBool True)
 
-eqlExpr = Fx $ (Fx $ (Fx $ Const (CInt 2)) `Add`
-               (Fx $ Const (CInt 3))) `Equal` (Fx $ Const (CInt 4))
+eqlExpr = Fx $ (Fx $ (Fx $ CInt 2) `Add` (Fx $ CInt 3)) `Equal` (Fx $ CInt 4)
 
-badExpr = Fx $ (Fx $ Const (CBool False)) `Or` (Fx $ Const (CInt 500))
+badExpr = Fx $ (Fx $ CBool False) `Or` (Fx $ CInt 500)
 
-ifExpr = Fx $ (If (Fx $ Const (CBool True)) (Fx $ Const (CInt 3))
-                 (Fx $ Const (CInt 4)))
+ifExpr = Fx $ (If (Fx $ CBool True) (Fx $ CInt 3) (Fx $ CInt 4))
 
 main = mapM_ print [ run intExpr
                    , run boolExpr

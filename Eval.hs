@@ -1,22 +1,39 @@
 module Eval
-( eval
+( RVal(..)
+, eval
 ) where
+
+import Control.Applicative
 
 import AST
 import Algebra
 
-type EvalAlgebra = Algebra ExprF CVal
+data RVal = RInt Int | RBool Bool deriving Show
+
+type EvalAlgebra = Algebra ExprF (Maybe RVal)
+
+integer_operation :: (Int -> Int -> Int) -> RVal -> RVal -> Maybe RVal
+integer_operation f (RInt x) (RInt y) = Just . RInt $ f x y
+integer_operation _ _ _ = Nothing
+
+boolean_operation :: (Bool -> Bool -> Bool) -> RVal -> RVal -> Maybe RVal
+boolean_operation f (RBool x) (RBool y) = Just . RBool $ f x y
+boolean_operation _ _ _ = Nothing
 
 alg :: EvalAlgebra
-alg (Const v) = v 
-alg ((CInt x) `Add` (CInt y)) = CInt $ x + y 
-alg ((CInt x) `Mul` (CInt y)) = CInt $ x * y 
-alg ((CBool x) `And` (CBool y)) = CBool $ x && y
-alg ((CBool x) `Or` (CBool y)) = CBool $ x || y
-alg ((CInt x) `Equal` (CInt y)) = CBool $ x == y
-alg (If (CBool p) e1 e2) = if p then e1 else e2
-alg _ = MismatchedTypes
+alg (CInt n) = Just $ RInt n
+alg (CBool b) = Just $ RBool b
+alg (x `Add` y) = x >>= \x' -> y >>= \y' -> integer_operation (+) x' y'
+alg (x `Mul` y) = x >>= \x' -> y >>= \y' -> integer_operation (*) x' y'
+alg (x `And` y) = x >>= \x' -> y >>= \y' -> boolean_operation (&&) x' y'
+alg (x `Or` y) = x >>= \x' -> y >>= \y' -> boolean_operation (||) x' y'
+alg (x `Equal` y) = x >>= \x' -> y >>= \y' -> case (x', y') of
+    (RInt m, RInt n) -> Just . RBool $ m == n
+    _ -> Nothing
+alg (If p e1 e2) = p >>= \p' -> case p' of
+    RBool r -> if r then e1 else e2
+    _ -> Nothing
 
-eval :: Fix ExprF -> CVal
+eval :: Fix ExprF -> Maybe RVal
 eval = cata alg
 

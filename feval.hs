@@ -21,10 +21,13 @@ eqlExpr = Fx $ (Fx $ (Fx $ Const (CInt 2)) `Add`
 
 badExpr = Fx $ (Fx $ Const (CBool False)) `Or` (Fx $ Const (CInt 500))
 
+ifExpr = Fx $ (If (Fx $ Const (CBool True)) (Fx $ Const (CInt 3))
+                 (Fx $ Const (CInt 4)))
 
 main = mapM_ print [ run intExpr
                    , run boolExpr
                    , run eqlExpr
                    , run badExpr
+                   , run ifExpr
                    ]
 

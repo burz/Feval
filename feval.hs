@@ -1,6 +1,6 @@
 import AST
-import EvalAST (evalTransform)
-import TypeAST (typeTransform, FType(..))
+import EvalAST (evalTransform, RVal)
+import TypeAST (typeTransform, FType)
 import Algebra
 import Type
 import Eval

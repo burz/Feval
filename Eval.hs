@@ -1,19 +1,11 @@
 module Eval
-( RVal(..)
-, eval
+( eval
 ) where
 
 import Control.Applicative
 
 import EvalAST hiding (transform)
 import Algebra
-
-data RVal = RInt Int | RBool Bool | RFunction String (LazyFix Expr)
-
-instance Show RVal where
-    show (RInt n) = show n
-    show (RBool b) = show b
-    show (RFunction x e) = "Function " ++ x ++ " -> " ++ show e
 
 type EvalAlgebra = Algebra (Expr (LazyFix Expr)) (Maybe RVal)
 

@@ -2,6 +2,7 @@
 
 module EvalAST
 ( Expr(..)
+, RVal(..)
 , evalTransform
 ) where
 
@@ -46,6 +47,13 @@ instance Show (LazyFix Expr) where
     show (Fx' (If p x y)) = "If " ++ show p ++ " Then " ++ show x ++ " Else " ++ show y
     show (Fx' (Function x p)) = "Function " ++ x ++ " -> " ++ show p
     show (Fx' (Appl f x)) = "(" ++ show f ++ ") (" ++ show x ++ ")"
+
+data RVal = RInt Int | RBool Bool | RFunction String (LazyFix Expr)
+
+instance Show RVal where
+    show (RInt n) = show n
+    show (RBool b) = show b
+    show (RFunction x e) = "Function " ++ x ++ " -> " ++ show e
 
 alg :: Algebra AST.ExprF (LazyFix Expr)
 alg (AST.CInt n) = Fx' $ CInt n

@@ -19,6 +19,7 @@ data Expr a
     | If a a a 
     | Function String a
     | Appl a a
+    | LetRec String String a a
     | Let String a a
     | Semi a a
 
@@ -34,6 +35,7 @@ instance Functor Expr where
     fmap eval (If p e1 e2) = If (eval p) (eval e1) (eval e2) 
     fmap eval (Function s p) = Function s (eval p)
     fmap eval (Appl f x) = Appl (eval f) (eval x)
+    fmap eval (LetRec f x p e) = LetRec f x (eval p) (eval e)
     fmap eval (Let s x y) = Let s (eval x) (eval y)
     fmap eval (Semi x y) = Semi (eval x) (eval y)
 
@@ -49,6 +51,7 @@ alg (Equal x y) = Fx $ AST.Equal x y
 alg (If p x y) = Fx $ AST.If p x y
 alg (Function s p) = Fx $ AST.Function s p
 alg (Appl f x) = Fx $ AST.Appl f x
+alg (LetRec f x p e) = Fx $ AST.LetRec f x p e
 alg (Let s x y) = Fx $ AST.Appl (Fx $ AST.Function s y) x
 alg (Semi x y) = Fx $ AST.Appl (Fx $ AST.Function "_" y) x
 

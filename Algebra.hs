@@ -26,7 +26,7 @@ lazyUnFix (Fx' x) = x
 cata :: Functor f => Algebra f a -> Fix f -> a
 cata alg = alg . fmap (cata alg) . unFix
 
-lazyCata :: Functor (f (LazyFix f)) => Algebra (f (LazyFix f)) b -> LazyFix f -> b
+lazyCata :: Functor (f (LazyFix f)) => Algebra (f (LazyFix f)) a -> LazyFix f -> a
 lazyCata alg = alg . fmap (lazyCata alg) . lazyUnFix
 
 mcata :: Functor f => MAlgebra m f a -> Fix f -> m a

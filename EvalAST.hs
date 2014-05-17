@@ -34,6 +34,19 @@ instance Functor (Expr (LazyFix Expr)) where
     fmap eval (Function s p) = Function s p
     fmap eval (Appl f x) = Appl (eval f) (eval x)
 
+instance Show (LazyFix Expr) where
+    show (Fx' (CInt n)) = show n
+    show (Fx' (CBool b)) = show b
+    show (Fx' (CVar s)) = s
+    show (Fx' (x `Add` y)) = show x ++ " + " ++ show y
+    show (Fx' (x `Mul` y)) = show x ++ " * " ++ show y
+    show (Fx' (x `And` y)) = show x ++ " && " ++ show y
+    show (Fx' (x `Or` y)) = show x ++ " || " ++ show y
+    show (Fx' (x `Equal` y)) = show x ++ " = " ++ show y
+    show (Fx' (If p x y)) = "If " ++ show p ++ " Then " ++ show x ++ " Else " ++ show y
+    show (Fx' (Function x p)) = "Function " ++ x ++ " -> " ++ show p
+    show (Fx' (Appl f x)) = "(" ++ show f ++ ") (" ++ show x ++ ")"
+
 alg :: Algebra AST.ExprF (LazyFix Expr)
 alg (AST.CInt n) = Fx' $ CInt n
 alg (AST.CBool b) = Fx' $ CBool b

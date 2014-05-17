@@ -23,6 +23,8 @@ badExpr = Fx $ (Fx $ CBool False) `Or` (Fx $ CInt 500)
 
 ifExpr = Fx $ (If (Fx $ CBool True) (Fx $ CInt 3) (Fx $ CInt 4))
 
+funExpr = Fx $ Appl (Fx $ Function "x" (Fx $ Add (Fx $ CVar "x") (Fx $ CInt 4))) (Fx $ CInt 2)
+
 main = mapM_ print [ run intExpr
                    , run boolExpr
                    , run eqlExpr

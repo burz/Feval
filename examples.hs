@@ -61,19 +61,30 @@ eefLetExpr = let add = Fx $ EF.Sub (Fx $ EF.CVar "x") (Fx $ EF.CVar "y") in
     let appl = Fx $ EF.Appl innerappl (Fx $ EF.CInt 5)
     in Fx $ EF.Let "f" ["x", "y"] add appl
 
-main = mapM_ print [ F.run   intExpr
-                   , F.run   anotherIntExpr
-                   , F.run   boolExpr
-                   , F.run   notExpr
-                   , F.run   eqlExpr
-                   , F.run   badExpr
-                   , F.run   ifExpr
-                   , F.run   funExpr
-                   , F.run   applExpr
-                   , F.run   letRecExpr
-                   , F.run   twoArgRecExpr
-                   , EF.run  letExpr
-                   , EF.run  semiExpr
+-- Let f x y = If x = 0 Then If y = 0 Then 0 Else y + f x (y - 1) Else x + f (x - 1) y
+recExpr = let eql s = Fx $ EF.Equal (Fx $ EF.CVar s) (Fx $ EF.CInt 0) in
+    let min s = Fx $ EF.Sub (Fx $ EF.CVar s) (Fx $ EF.CInt 1) in
+    let tripapp f x y = Fx $ EF.Appl (Fx $ EF.Appl (Fx $ EF.CVar f) x) y in
+    let xadd = Fx $ EF.Add (Fx $ EF.CVar "x") (tripapp "f" (min "x") (Fx $ EF.CVar "y")) in
+    let yadd = Fx $ EF.Add (Fx $ EF.CVar "y") (tripapp "f" (Fx $ EF.CVar "x") (min "y")) in
+    let innerif = Fx $ EF.If (eql "y") (Fx $ EF.CInt 0) yadd in
+    let ifstmt = Fx $ EF.If (eql "x") innerif xadd
+    in Fx $ EF.Let "f" ["x", "y"] ifstmt (tripapp "f" (Fx $ EF.CInt 3) (Fx $ EF.CInt 3))
+
+main = mapM_ print [ F.run  intExpr
+                   , F.run  anotherIntExpr
+                   , F.run  boolExpr
+                   , F.run  notExpr
+                   , F.run  eqlExpr
+                   , F.run  badExpr
+                   , F.run  ifExpr
+                   , F.run  funExpr
+                   , F.run  applExpr
+                   , F.run  letRecExpr
+                   , F.run  twoArgRecExpr
+                   , EF.run letExpr
+                   , EF.run semiExpr
+                   , EF.run recExpr
                    , EF.run eefLetExpr
                    ]
 

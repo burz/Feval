@@ -8,6 +8,7 @@ module Algebra
 , cata
 , lazyCata
 , mcata
+, lazyMCata
 ) where
 
 type Algebra f a = f a -> a
@@ -30,4 +31,7 @@ lazyCata alg = alg . fmap (lazyCata alg) . lazyUnFix
 
 mcata :: Functor f => MAlgebra m f a -> Fix f -> m a
 mcata alg = alg . fmap (cata alg) . unFix
+
+lazyMCata :: Functor (f (LazyFix f)) => MAlgebra m (f (LazyFix f)) a -> LazyFix f -> m a
+lazyMCata alg = alg . fmap (lazyMCata alg) . lazyUnFix
 

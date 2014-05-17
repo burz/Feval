@@ -1,16 +1,14 @@
 module Type
-( FType(..)
-, typecheck
+( typecheck
 ) where
 
+import Prelude hiding (lookup)
 import qualified Data.Set as Set
 import Control.Monad.State
 import Control.Applicative
 
-import AST
 import Algebra
-
-data FType = FInt | FBool | FVar Int deriving (Eq, Ord, Show)
+import TypeAST
 
 type Equation = (FType, FType)
 type Equations = Set.Set Equation
@@ -33,15 +31,23 @@ add_transitives e = Set.fold check_element (Updates e False) e
               then u =>> add_equation (x, y')
               else u
 
+add_arrows :: Equations -> Updates
+add_arrows e = Set.fold check_element (Updates e False) e
+    where check_element (FArrow x y, FArrow x' y') u
+              = u =>> add_equation (x, x') =>> add_equation (y, y')
+          check_element _ u = u
+
 close :: Equations -> Equations
-close e = let Updates e' r = add_transitives e in if r
+close e = let Updates e' r = add_transitives e =>> add_arrows in if r
     then close e' 
     else e'
 
 inconsistent :: Equations -> Bool
 inconsistent e = Set.fold check False e
     where check (FInt, FBool) _ = True
-          check (FBool, FInt) _ = True
+          check (FInt, FArrow _ _) _ = True
+          check (FBool, FArrow _ _) _ = True
+          check (FNotClosed, _) _ = True
           check _ r = r
 
 choose :: Int -> Equation -> FType -> FType
@@ -59,6 +65,7 @@ substitute :: FType -> Equations -> FType
 substitute FInt _ = FInt
 substitute FBool _ = FBool
 substitute (FVar n) e = Set.fold (choose n) (FVar n) e
+substitute (FArrow x y) e = FArrow (substitute x e) (substitute y e)
 
 two_add :: Equation -> Equation -> Equations -> Equations -> Equations
 two_add eq eq' e e' = Set.insert eq $ Set.insert eq' $ Set.union e e'
@@ -74,23 +81,39 @@ doNothing = state (\i -> (i, i))
 newHandle :: Counter Int
 newHandle = state (\i -> (i, i + 1))
 
-type TypeResult = (FType, Equations)
-type TypeMAlgebra = MAlgebra Counter ExprF TypeResult
+type Hypotheses = [(String, FType)]
 
-alg :: TypeMAlgebra
-alg (CInt _) = (\_ -> (FInt, Set.empty)) <$> doNothing
-alg (CBool _) = (\_ -> (FBool, Set.empty)) <$> doNothing
-alg (x `Add` y) = (\(t, e) (t', e') -> (FInt, two_add (t, FInt) (t', FInt) e e')) <$> x <*> y
-alg (x `Mul` y) = (\(t, e) (t', e') -> (FInt, two_add (t, FInt) (t', FInt) e e')) <$> x <*> y
-alg (x `And` y) = (\(t, e) (t', e') -> (FBool, two_add (t, FBool) (t', FBool) e e')) <$> x <*> y
-alg (x `Or` y) = (\(t, e) (t', e') -> (FBool, two_add (t, FBool) (t', FBool) e e')) <$> x <*> y
-alg (x `Equal` y) = (\(t, e) (t', e') -> (FBool, two_add (t, FInt) (t', FInt) e e')) <$> x <*> y
-alg (If p x y) = (\n (t, e) (t', e') (t'', e'') ->
+lookup :: String -> Hypotheses -> Maybe FType
+lookup s [] = Nothing
+lookup s ((s', t):xs) = if s' == s then Just t else lookup s xs
+
+type TypeResult = (FType, Equations)
+type TypeMAlgebra = MAlgebra Counter (Expr (LazyFix Expr)) TypeResult
+
+alg :: Hypotheses -> TypeMAlgebra
+alg _ (CInt _) = (\_ -> (FInt, Set.empty)) <$> doNothing
+alg _ (CBool _) = (\_ -> (FBool, Set.empty)) <$> doNothing
+alg g (CVar s) = (\_ -> let r = lookup s g in case r of
+    Nothing -> (FNotClosed, Set.insert (FNotClosed, FNotClosed) Set.empty)
+    Just t -> (t, Set.empty)) <$> doNothing
+alg _ (x `Add` y) = (\(t, e) (t', e') -> (FInt, two_add (t, FInt) (t', FInt) e e')) <$> x <*> y
+alg _ (x `Mul` y) = (\(t, e) (t', e') -> (FInt, two_add (t, FInt) (t', FInt) e e')) <$> x <*> y
+alg _ (x `And` y) = (\(t, e) (t', e') -> (FBool, two_add (t, FBool) (t', FBool) e e')) <$> x <*> y
+alg _ (x `Or` y) = (\(t, e) (t', e') -> (FBool, two_add (t, FBool) (t', FBool) e e')) <$> x <*> y
+alg _ (x `Equal` y) = (\(t, e) (t', e') -> (FBool, two_add (t, FInt) (t', FInt) e e')) <$> x <*> y
+alg _ (If p x y) = (\n (t, e) (t', e') (t'', e'') ->
     let h = FVar n in
     (h, three_add (t, FBool) (t', t'') (t'', h) e e' e'')) <$> newHandle <*> p <*> x <*> y
+alg g (Function x p) = newHandle >>= \n -> let h = FVar n in
+    typecheck' ((x, h) : g) p >>= \(t, e) -> return (FArrow h t, e)
+alg _ (Appl f x) = (\n (t, e) (t', e') -> let h = FVar n in
+    (h, Set.insert (t, FArrow t' h) (Set.union e e'))) <$> newHandle <*> f <*> x
 
-typecheck :: Fix ExprF -> Maybe FType
-typecheck e = let (t, e') = evalState (mcata alg e) 0
+typecheck' :: Hypotheses -> LazyFix Expr -> Counter TypeResult
+typecheck' g e = lazyMCata (alg g) e
+
+typecheck :: LazyFix Expr -> Maybe FType
+typecheck e = let (t, e') = evalState (typecheck' [] e) 0
     in let e'' = close e'
     in if inconsistent e'' then Nothing else Just (substitute t e'')
 

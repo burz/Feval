@@ -34,6 +34,18 @@ letRecExpr = let eql = Fx $ Equal (Fx $ CVar "x") (Fx $ CInt 0) in
     let ifstmt = Fx $ If eql (Fx $ CInt 0) els
     in Fx $ LetRec "f" "x" ifstmt (Fx $ Appl (Fx $ CVar "f") (Fx $ CInt 3))
 
+-- Let Rec f x = Function y -> If x = 0 Then If y = 0 Then 0 Else y + f x (y - 1) Else x + f (x - 1) y
+-- In f 3 3
+twoArgRecExpr = let eql s = Fx $ Equal (Fx $ CVar s) (Fx $ CInt 0) in
+    let min s = Fx $ Sub (Fx $ CVar s) (Fx $ CInt 1) in
+    let tripapp f x y = Fx $ Appl (Fx $ Appl (Fx $ CVar f) x) y in
+    let xadd = Fx $ Add (Fx $ CVar "x") (tripapp "f" (min "x") (Fx $ CVar "y")) in
+    let yadd = Fx $ Add (Fx $ CVar "y") (tripapp "f" (Fx $ CVar "x") (min "y")) in
+    let innerif = Fx $ If (eql "y") (Fx $ CInt 0) yadd in
+    let ifstmt = Fx $ If (eql "x") innerif xadd in
+    let fun = Fx $ Function "y" ifstmt
+    in Fx $ LetRec "f" "x" fun (tripapp "f" (Fx $ CInt 3) (Fx $ CInt 3))
+
 -- Let x = 4 In x + 4
 letExpr = Fx $ EF.Let "x" (Fx $ EF.CInt 4) (Fx $ EF.Add (Fx $ EF.CVar "x") (Fx $ EF.CInt 4))
 
@@ -49,6 +61,7 @@ main = mapM_ print [ F.run  intExpr
                    , F.run  funExpr
                    , F.run  applExpr
                    , F.run  letRecExpr
+                   , F.run  twoArgRecExpr
                    , EF.run letExpr
                    , EF.run semiExpr
                    ]

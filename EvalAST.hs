@@ -54,7 +54,17 @@ instance Show (LazyFix Expr) where
     show (Fx' (x `Equal` y)) = show x ++ " = " ++ show y
     show (Fx' (If p x y)) = "If " ++ show p ++ " Then " ++ show x ++ " Else " ++ show y
     show (Fx' (Function x p)) = "Function " ++ x ++ " -> " ++ show p
-    show (Fx' (Appl f x)) = "(" ++ show f ++ ") (" ++ show x ++ ")"
+    show (Fx' (Appl f x)) = (case f of
+        (Fx' (CInt n)) -> show n ++ " "
+        (Fx' (CBool b)) -> show b ++ " "
+        (Fx' (CVar s)) -> s ++ " "
+        (Fx' (Appl _ _)) -> show f ++ " "
+        _ -> "(" ++ show f ++ ") ") ++ (case x of
+            (Fx' (CInt n)) -> show n
+            (Fx' (CBool b)) -> show b
+            (Fx' (CVar s)) -> s
+            (Fx' (Appl _ _)) -> show x
+            _ -> "(" ++ show x ++ ")")
     show (Fx' (LetRec f x p e))
         = "Let Rec " ++ f ++ " " ++ x ++ " = " ++ show p ++ " In " ++ show e
 

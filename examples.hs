@@ -61,7 +61,7 @@ eefLetExpr = let add = Fx $ EF.Sub (Fx $ EF.CVar "x") (Fx $ EF.CVar "y") in
     let appl = Fx $ EF.Appl innerappl (Fx $ EF.CInt 5)
     in Fx $ EF.Let "f" ["x", "y"] add appl
 
--- Let f x y = If x = 0 Then If y = 0 Then 0 Else y + f x (y - 1) Else x + f (x - 1) y
+-- Let f x y = If x = 0 Then If y = 0 Then 0 Else y + f x (y - 1) Else x + f (x - 1) y In f 3 3
 recExpr = let eql s = Fx $ EF.Equal (Fx $ EF.CVar s) (Fx $ EF.CInt 0) in
     let min s = Fx $ EF.Sub (Fx $ EF.CVar s) (Fx $ EF.CInt 1) in
     let tripapp f x y = Fx $ EF.Appl (Fx $ EF.Appl (Fx $ EF.CVar f) x) y in

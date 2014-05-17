@@ -1,5 +1,6 @@
 module EFeval
-( Expr(..)
+( F.Result(..)
+, Expr(..)
 , run
 ) where
 

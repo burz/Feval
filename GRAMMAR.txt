@@ -1,3 +1,23 @@
+## Grammar for Feval
+
+x ::= ( a | b | ... | z )
+      ( A | B | ... | Z
+      | 0 | 1 | ... | 9
+      | _ | ' )*
+
+v ::=   x
+      | True | False
+      | 0 | 1 | -1 | 2 | -2 | ...
+      | Function x -> e
+
+e ::=   v
+      | (e)
+      | e "&&" e | e "||" e
+      | e + e | e * e | e = e
+      | e e
+      | If e Then e Else e
+      | Let Rec x x = e In e
+
 ## Grammar for EFeval
 
 x ::= ( a | b | ... | z )
@@ -18,5 +38,26 @@ e ::=   v
       | If e Then e Else e
       | Let Rec x x = e In e
       | Let x = e In e
+      | e; e
+
+## Grammar for EEFeval
+
+x ::= ( a | b | ... | z )
+      ( A | B | ... | Z
+      | 0 | 1 | ... | 9
+      | _ | ' )*
+
+v ::=   x
+      | True | False
+      | 0 | 1 | -1 | 2 | -2 | ...
+      | Function x -> e
+
+e ::=   v
+      | (e)
+      | e "&&" e | e "||" e
+      | e + e | e * e | e = e
+      | e e
+      | If e Then e Else e
+      | Let x x ... x = e In e
       | e; e
 

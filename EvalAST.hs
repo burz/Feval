@@ -19,6 +19,7 @@ data Expr a b
     | Div b b
     | And b b
     | Or b b
+    | Not b
     | Equal b b
     | If b a a
     | Function String a
@@ -35,6 +36,7 @@ instance Functor (Expr (LazyFix Expr)) where
     fmap eval (x `Div` y) = eval x `Div` eval y
     fmap eval (x `And` y) = eval x `And` eval y
     fmap eval (x `Or` y) = eval x `Or` eval y
+    fmap eval (Not x) = Not $ eval x
     fmap eval (x `Equal` y) = eval x `Equal` eval y
     fmap eval (If p e1 e2) = If (eval p) e1 e2
     fmap eval (Function s p) = Function s p
@@ -51,6 +53,10 @@ instance Show (LazyFix Expr) where
     show (Fx' (x `Div` y)) = show x ++ " / " ++ show y
     show (Fx' (x `And` y)) = show x ++ " && " ++ show y
     show (Fx' (x `Or` y)) = show x ++ " || " ++ show y
+    show (Fx' (Not x)) = "!" ++ (case x of
+        (Fx' (CBool b)) -> show b
+        (Fx' (CVar s)) -> s
+        _ -> "(" ++ show x ++ ")")
     show (Fx' (x `Equal` y)) = show x ++ " = " ++ show y
     show (Fx' (If p x y)) = "If " ++ show p ++ " Then " ++ show x ++ " Else " ++ show y
     show (Fx' (Function x p)) = "Function " ++ x ++ " -> " ++ show p
@@ -85,6 +91,7 @@ alg (AST.Mul x y) = Fx' $ Mul x y
 alg (AST.Div x y) = Fx' $ Div x y
 alg (AST.And x y) = Fx' $ And x y
 alg (AST.Or x y) = Fx' $ Or x y
+alg (AST.Not x) = Fx' $ Not x
 alg (AST.Equal x y) = Fx' $ Equal x y
 alg (AST.If p x y) = Fx' $ If p x y
 alg (AST.Function s p) = Fx' $ Function s p

@@ -32,6 +32,7 @@ substitute s v (Fx' (Mul x y)) = Fx' $ Mul (substitute s v x) (substitute s v y)
 substitute s v (Fx' (Div x y)) = Fx' $ Div (substitute s v x) (substitute s v y)
 substitute s v (Fx' (And x y)) = Fx' $ And (substitute s v x) (substitute s v y)
 substitute s v (Fx' (Or x y)) = Fx' $ Or (substitute s v x) (substitute s v y)
+substitute s v (Fx' (Not x)) = Fx' . Not $ substitute s v x
 substitute s v (Fx' (Equal x y)) = Fx' $ Equal (substitute s v x) (substitute s v y)
 substitute s v (Fx' (If p x y))
     = Fx' $ If (substitute s v p) (substitute s v x) (substitute s v y)
@@ -59,6 +60,9 @@ alg (x `Mul` y) = x >>= \x' -> y >>= \y' -> integer_operation (*) x' y'
 alg (x `Div` y) = x >>= \x' -> y >>= \y' -> integer_operation quot x' y'
 alg (x `And` y) = x >>= \x' -> y >>= \y' -> boolean_operation (&&) x' y'
 alg (x `Or` y) = x >>= \x' -> y >>= \y' -> boolean_operation (||) x' y'
+alg (Not x) = x >>= \x' -> case x' of
+    RBool b -> Just . RBool $ not b
+    _ -> Nothing
 alg (x `Equal` y) = x >>= \x' -> y >>= \y' -> case (x', y') of
     (RInt m, RInt n) -> Just . RBool $ m == n
     _ -> Nothing

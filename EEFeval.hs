@@ -19,6 +19,7 @@ data Expr a
     | Div a a
     | And a a
     | Or a a
+    | Not a
     | Equal a a
     | If a a a
     | Function String a
@@ -36,6 +37,7 @@ instance Functor Expr where
     fmap eval (x `Div` y) = eval x `Div` eval y
     fmap eval (x `And` y) = eval x `And` eval y
     fmap eval (x `Or` y) = eval x `Or` eval y
+    fmap eval (Not x) = Not $ eval x
     fmap eval (x `Equal` y) = eval x `Equal` eval y
     fmap eval (If p e1 e2) = If (eval p) (eval e1) (eval e2) 
     fmap eval (Function s p) = Function s (eval p)
@@ -53,6 +55,10 @@ instance Show (Fix Expr) where
     show (Fx (x `Div` y)) = show x ++ " / " ++ show y
     show (Fx (x `And` y)) = show x ++ " && " ++ show y
     show (Fx (x `Or` y)) = show x ++ " || " ++ show y
+    show (Fx (Not x)) = "!" ++ (case x of
+        (Fx (CBool b)) -> show b
+        (Fx (CVar s)) -> s
+        _ -> "(" ++ show x ++ ")")
     show (Fx (x `Equal` y)) = show x ++ " = " ++ show y
     show (Fx (If p x y)) = "If " ++ show p ++ " Then " ++ show x ++ " Else " ++ show y
     show (Fx (Function x p)) = "Function " ++ x ++ " -> " ++ show p
@@ -85,6 +91,7 @@ recursiveAlg _ (EF.Mul x y) = x || y
 recursiveAlg _ (EF.Div x y) = x || y
 recursiveAlg _ (EF.And x y) = x || y
 recursiveAlg _ (EF.Or x y) = x || y
+recursiveAlg _ (EF.Not x) = x
 recursiveAlg _ (EF.Equal x y) = x || y
 recursiveAlg _ (EF.If p x y) = p || x || y
 recursiveAlg s (EF.Function s' p) = if s' == s then False else p
@@ -112,6 +119,7 @@ alg (Mul x y) = Fx $ EF.Mul x y
 alg (Div x y) = Fx $ EF.Div x y
 alg (And x y) = Fx $ EF.And x y
 alg (Or x y) = Fx $ EF.Or x y
+alg (Not x) = Fx $ EF.Not x
 alg (Equal x y) = Fx $ EF.Equal x y
 alg (If p x y) = Fx $ EF.If p x y
 alg (Function s p) = Fx $ EF.Function s p

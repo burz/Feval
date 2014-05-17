@@ -13,6 +13,9 @@ anotherIntExpr = Fx $ (Fx $ CInt 4) `Div` (Fx $ (Fx $ CInt 3) `Sub` (Fx $ CInt 1
 -- (False || True) && True
 boolExpr = Fx $ (Fx $ (Fx $ CBool False) `Or` (Fx $ CBool True)) `And` (Fx $ CBool True)
 
+-- !True
+notExpr = Fx $ Not (Fx $ CBool True)
+
 -- (2 + 3) = 4
 eqlExpr = Fx $ (Fx $ (Fx $ CInt 2) `Add` (Fx $ CInt 3)) `Equal` (Fx $ CInt 4)
 
@@ -62,6 +65,7 @@ eefLetExpr = let add = Fx $ EEF.Sub (Fx $ EEF.CVar "x") (Fx $ EEF.CVar "y") in
 main = mapM_ print [ F.run   intExpr
                    , F.run   anotherIntExpr
                    , F.run   boolExpr
+                   , F.run   notExpr
                    , F.run   eqlExpr
                    , F.run   badExpr
                    , F.run   ifExpr

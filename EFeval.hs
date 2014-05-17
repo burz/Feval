@@ -18,6 +18,7 @@ data Expr a
     | Div a a
     | And a a 
     | Or a a 
+    | Not a
     | Equal a a 
     | If a a a 
     | Function String a
@@ -36,6 +37,7 @@ instance Functor Expr where
     fmap eval (x `Div` y) = eval x `Div` eval y
     fmap eval (x `And` y) = eval x `And` eval y
     fmap eval (x `Or` y) = eval x `Or` eval y
+    fmap eval (Not x) = Not $ eval x
     fmap eval (x `Equal` y) = eval x `Equal` eval y
     fmap eval (If p e1 e2) = If (eval p) (eval e1) (eval e2) 
     fmap eval (Function s p) = Function s (eval p)
@@ -54,6 +56,7 @@ alg (Mul x y) = Fx $ AST.Mul x y
 alg (Div x y) = Fx $ AST.Div x y
 alg (And x y) = Fx $ AST.And x y
 alg (Or x y) = Fx $ AST.Or x y
+alg (Not x) = Fx $ AST.Not x
 alg (Equal x y) = Fx $ AST.Equal x y
 alg (If p x y) = Fx $ AST.If p x y
 alg (Function s p) = Fx $ AST.Function s p

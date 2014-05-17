@@ -9,7 +9,9 @@ data Expr a
     | CBool Bool
     | CVar String
     | Add a a
+    | Sub a a
     | Mul a a
+    | Div a a
     | And a a
     | Or a a
     | Equal a a
@@ -23,7 +25,9 @@ instance Functor Expr where
     fmap eval (CBool b) = CBool b
     fmap eval (CVar s) = CVar s
     fmap eval (x `Add` y) = eval x `Add` eval y
+    fmap eval (x `Sub` y) = eval x `Sub` eval y
     fmap eval (x `Mul` y) = eval x `Mul` eval y
+    fmap eval (x `Div` y) = eval x `Div` eval y
     fmap eval (x `And` y) = eval x `And` eval y
     fmap eval (x `Or` y) = eval x `Or` eval y
     fmap eval (x `Equal` y) = eval x `Equal` eval y

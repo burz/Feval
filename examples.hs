@@ -6,6 +6,9 @@ import qualified EFeval as EF
 -- (2 + 3) * 4
 intExpr = Fx $ (Fx $ (Fx $ CInt 2) `Add` (Fx $ CInt 3)) `Mul` (Fx $ CInt 4)
 
+-- 4 / (3 - 1)
+anotherIntExpr = Fx $ (Fx $ CInt 4) `Div` (Fx $ (Fx $ CInt 3) `Sub` (Fx $ CInt 1))
+
 -- (False || True) && True
 boolExpr = Fx $ (Fx $ (Fx $ CBool False) `Or` (Fx $ CBool True)) `And` (Fx $ CBool True)
 
@@ -38,6 +41,7 @@ letExpr = Fx $ EF.Let "x" (Fx $ EF.CInt 4) (Fx $ EF.Add (Fx $ EF.CVar "x") (Fx $
 semiExpr = Fx $ EF.Semi (Fx $ EF.CInt 4) (Fx $ EF.CBool True)
 
 main = mapM_ print [ F.run  intExpr
+                   , F.run  anotherIntExpr
                    , F.run  boolExpr
                    , F.run  eqlExpr
                    , F.run  badExpr

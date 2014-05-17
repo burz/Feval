@@ -14,7 +14,9 @@ data Expr a b
     | CBool Bool
     | CVar String
     | Add b b
+    | Sub b b
     | Mul b b
+    | Div b b
     | And b b
     | Or b b
     | Equal b b
@@ -28,7 +30,9 @@ instance Functor (Expr (LazyFix Expr)) where
     fmap eval (CBool b) = CBool b
     fmap eval (CVar s) = CVar s
     fmap eval (x `Add` y) = eval x `Add` eval y
+    fmap eval (x `Sub` y) = eval x `Sub` eval y
     fmap eval (x `Mul` y) = eval x `Mul` eval y
+    fmap eval (x `Div` y) = eval x `Div` eval y
     fmap eval (x `And` y) = eval x `And` eval y
     fmap eval (x `Or` y) = eval x `Or` eval y
     fmap eval (x `Equal` y) = eval x `Equal` eval y
@@ -51,7 +55,9 @@ alg (AST.CInt n) = Fx' $ CInt n
 alg (AST.CBool b) = Fx' $ CBool b
 alg (AST.CVar s) = Fx' $ CVar s
 alg (AST.Add x y) = Fx' $ Add x y
+alg (AST.Sub x y) = Fx' $ Sub x y
 alg (AST.Mul x y) = Fx' $ Mul x y
+alg (AST.Div x y) = Fx' $ Div x y
 alg (AST.And x y) = Fx' $ And x y
 alg (AST.Or x y) = Fx' $ Or x y
 alg (AST.Equal x y) = Fx' $ Equal x y

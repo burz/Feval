@@ -103,7 +103,9 @@ alg g (CVar s) = (\_ -> let r = lookup s g in case r of
     Nothing -> (FNotClosed, Set.insert (FNotClosed, FNotClosed) Set.empty)
     Just t -> (t, Set.empty)) <$> doNothing
 alg _ (x `Add` y) = (\(t, e) (t', e') -> (FInt, two_add (t, FInt) (t', FInt) e e')) <$> x <*> y
+alg _ (x `Sub` y) = (\(t, e) (t', e') -> (FInt, two_add (t, FInt) (t', FInt) e e')) <$> x <*> y
 alg _ (x `Mul` y) = (\(t, e) (t', e') -> (FInt, two_add (t, FInt) (t', FInt) e e')) <$> x <*> y
+alg _ (x `Div` y) = (\(t, e) (t', e') -> (FInt, two_add (t, FInt) (t', FInt) e e')) <$> x <*> y
 alg _ (x `And` y) = (\(t, e) (t', e') -> (FBool, two_add (t, FBool) (t', FBool) e e')) <$> x <*> y
 alg _ (x `Or` y) = (\(t, e) (t', e') -> (FBool, two_add (t, FBool) (t', FBool) e e')) <$> x <*> y
 alg _ (x `Equal` y) = (\(t, e) (t', e') -> (FBool, two_add (t, FInt) (t', FInt) e e')) <$> x <*> y

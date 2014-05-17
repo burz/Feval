@@ -12,7 +12,9 @@ data Expr a
     | CBool Bool
     | CVar String
     | Add a a 
-    | Mul a a 
+    | Sub a a
+    | Mul a a
+    | Div a a
     | And a a 
     | Or a a 
     | Equal a a 
@@ -28,7 +30,9 @@ instance Functor Expr where
     fmap eval (CBool b) = CBool b
     fmap eval (CVar s) = CVar s
     fmap eval (x `Add` y) = eval x `Add` eval y
+    fmap eval (x `Sub` y) = eval x `Sub` eval y
     fmap eval (x `Mul` y) = eval x `Mul` eval y
+    fmap eval (x `Div` y) = eval x `Div` eval y
     fmap eval (x `And` y) = eval x `And` eval y
     fmap eval (x `Or` y) = eval x `Or` eval y
     fmap eval (x `Equal` y) = eval x `Equal` eval y
@@ -44,7 +48,9 @@ alg (CInt n) = Fx $ AST.CInt n
 alg (CBool b) = Fx $ AST.CBool b
 alg (CVar s) = Fx $ AST.CVar s
 alg (Add x y) = Fx $ AST.Add x y
+alg (Sub x y) = Fx $ AST.Sub x y
 alg (Mul x y) = Fx $ AST.Mul x y
+alg (Div x y) = Fx $ AST.Div x y
 alg (And x y) = Fx $ AST.And x y
 alg (Or x y) = Fx $ AST.Or x y
 alg (Equal x y) = Fx $ AST.Equal x y

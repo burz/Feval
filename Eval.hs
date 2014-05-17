@@ -27,7 +27,9 @@ substitute _ _ (Fx' (CInt n)) = Fx' $ CInt n
 substitute _ _ (Fx' (CBool b)) = Fx' $ CBool b
 substitute s v (Fx' (CVar s')) = if s' == s then transform v else Fx' $ CVar s'
 substitute s v (Fx' (Add x y)) = Fx' $ Add (substitute s v x) (substitute s v y)
+substitute s v (Fx' (Sub x y)) = Fx' $ Sub (substitute s v x) (substitute s v y)
 substitute s v (Fx' (Mul x y)) = Fx' $ Mul (substitute s v x) (substitute s v y)
+substitute s v (Fx' (Div x y)) = Fx' $ Div (substitute s v x) (substitute s v y)
 substitute s v (Fx' (And x y)) = Fx' $ And (substitute s v x) (substitute s v y)
 substitute s v (Fx' (Or x y)) = Fx' $ Or (substitute s v x) (substitute s v y)
 substitute s v (Fx' (Equal x y)) = Fx' $ Equal (substitute s v x) (substitute s v y)
@@ -52,7 +54,9 @@ alg (CInt n) = Just $ RInt n
 alg (CBool b) = Just $ RBool b
 alg (CVar s) = Nothing
 alg (x `Add` y) = x >>= \x' -> y >>= \y' -> integer_operation (+) x' y'
+alg (x `Sub` y) = x >>= \x' -> y >>= \y' -> integer_operation (-) x' y'
 alg (x `Mul` y) = x >>= \x' -> y >>= \y' -> integer_operation (*) x' y'
+alg (x `Div` y) = x >>= \x' -> y >>= \y' -> integer_operation quot x' y'
 alg (x `And` y) = x >>= \x' -> y >>= \y' -> boolean_operation (&&) x' y'
 alg (x `Or` y) = x >>= \x' -> y >>= \y' -> boolean_operation (||) x' y'
 alg (x `Equal` y) = x >>= \x' -> y >>= \y' -> case (x', y') of

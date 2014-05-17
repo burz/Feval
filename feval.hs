@@ -1,4 +1,5 @@
 import AST
+import EvalAST (transform)
 import Algebra
 import Type
 import Eval
@@ -8,7 +9,7 @@ data Result = Result (RVal, FType) | TypeMismatch | InconsistentTypes deriving S
 run :: Fix ExprF -> Result
 run e = case typecheck e of
     Nothing -> InconsistentTypes
-    Just t -> case eval e of
+    Just t -> case eval (transform e) of
         Nothing -> TypeMismatch
         Just v -> Result (v, t)
 

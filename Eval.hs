@@ -5,12 +5,12 @@ module Eval
 
 import Control.Applicative
 
-import AST
+import EvalAST
 import Algebra
 
 data RVal = RInt Int | RBool Bool deriving Show
 
-type EvalAlgebra = Algebra ExprF (Maybe RVal)
+type EvalAlgebra = Algebra (Expr (LazyFix Expr)) (Maybe RVal)
 
 integer_operation :: (Int -> Int -> Int) -> RVal -> RVal -> Maybe RVal
 integer_operation f (RInt x) (RInt y) = Just . RInt $ f x y
@@ -23,6 +23,7 @@ boolean_operation _ _ _ = Nothing
 alg :: EvalAlgebra
 alg (CInt n) = Just $ RInt n
 alg (CBool b) = Just $ RBool b
+alg (CVar s) = Nothing
 alg (x `Add` y) = x >>= \x' -> y >>= \y' -> integer_operation (+) x' y'
 alg (x `Mul` y) = x >>= \x' -> y >>= \y' -> integer_operation (*) x' y'
 alg (x `And` y) = x >>= \x' -> y >>= \y' -> boolean_operation (&&) x' y'
@@ -31,9 +32,9 @@ alg (x `Equal` y) = x >>= \x' -> y >>= \y' -> case (x', y') of
     (RInt m, RInt n) -> Just . RBool $ m == n
     _ -> Nothing
 alg (If p e1 e2) = p >>= \p' -> case p' of
-    RBool r -> if r then e1 else e2
+    RBool r -> if r then eval e1 else eval e2
     _ -> Nothing
 
-eval :: Fix ExprF -> Maybe RVal
-eval = cata alg
+eval :: LazyFix Expr -> Maybe RVal
+eval = lazyCata alg
 

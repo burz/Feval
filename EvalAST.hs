@@ -21,6 +21,7 @@ data Expr a b
     | If b a a
     | Function String a
     | Appl b b
+    | LetRec String String a a
 
 instance Functor (Expr (LazyFix Expr)) where
     fmap eval (CInt n) = CInt n
@@ -34,6 +35,7 @@ instance Functor (Expr (LazyFix Expr)) where
     fmap eval (If p e1 e2) = If (eval p) e1 e2
     fmap eval (Function s p) = Function s p
     fmap eval (Appl f x) = Appl (eval f) (eval x)
+    fmap eval (LetRec f x p e) = LetRec f x p e
 
 instance Show (LazyFix Expr) where
     show (Fx' (CInt n)) = show n
@@ -47,6 +49,8 @@ instance Show (LazyFix Expr) where
     show (Fx' (If p x y)) = "If " ++ show p ++ " Then " ++ show x ++ " Else " ++ show y
     show (Fx' (Function x p)) = "Function " ++ x ++ " -> " ++ show p
     show (Fx' (Appl f x)) = "(" ++ show f ++ ") (" ++ show x ++ ")"
+    show (Fx' (LetRec f x p e))
+        = "Let Rec " ++ f ++ " " ++ x ++ " = " ++ show p ++ " In " ++ show e
 
 data RVal = RInt Int | RBool Bool | RFunction String (LazyFix Expr)
 
@@ -67,6 +71,7 @@ alg (AST.Equal x y) = Fx' $ Equal x y
 alg (AST.If p x y) = Fx' $ If p x y
 alg (AST.Function s p) = Fx' $ Function s p
 alg (AST.Appl f x) = Fx' $ Appl f x
+alg (AST.LetRec f x p e) = Fx' $ LetRec f x p e
 
 evalTransform :: Fix AST.Expr -> LazyFix Expr
 evalTransform = cata alg

@@ -33,8 +33,15 @@ substitute s v (Fx' (Or x y)) = Fx' $ Or (substitute s v x) (substitute s v y)
 substitute s v (Fx' (Equal x y)) = Fx' $ Equal (substitute s v x) (substitute s v y)
 substitute s v (Fx' (If p x y))
     = Fx' $ If (substitute s v p) (substitute s v x) (substitute s v y)
-substitute s v (Fx' (Function x p)) = Fx' $ Function x (substitute s v p)
+substitute s v (Fx' (Function x p)) = Fx' $ if x == s
+    then Function x p
+    else Function x (substitute s v p)
 substitute s v (Fx' (Appl f x)) = Fx' $ Appl (substitute s v f) (substitute s v x)
+substitute s v (Fx' (LetRec f x p e)) = Fx' $ if f == s
+    then LetRec f x p e
+    else if x == s
+        then LetRec f x p (substitute s v e)
+        else LetRec f x (substitute s v p) (substitute s v e)
 
 apply :: RVal -> RVal -> Maybe RVal
 apply (RFunction x p) v = eval $ substitute x v p
@@ -56,6 +63,10 @@ alg (If p e1 e2) = p >>= \p' -> case p' of
     _ -> Nothing
 alg (Function x p) = Just $ RFunction x p
 alg (Appl f x) = f >>= \f' -> x >>= \x' -> apply f' x'
+alg (LetRec f x p e) =
+    let e' = Fx' $ LetRec f x p (Fx' $ Appl (Fx' $ CVar f) (Fx' $ CVar x)) in
+    let r = RFunction x (Fx' $ LetRec f x p e') in
+    let r' = substitute f r p in eval $ substitute f (RFunction x r') e
 
 eval :: LazyFix Expr -> Maybe RVal
 eval = lazyCata alg

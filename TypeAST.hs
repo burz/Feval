@@ -21,6 +21,7 @@ data Expr a b
     | If b b b
     | Function String a
     | Appl b b
+    | LetRec String String a a
 
 instance Functor (Expr (LazyFix Expr)) where
     fmap eval (CInt n) = CInt n
@@ -34,12 +35,14 @@ instance Functor (Expr (LazyFix Expr)) where
     fmap eval (If p e1 e2) = If (eval p) (eval e1) (eval e2)
     fmap eval (Function s p) = Function s p
     fmap eval (Appl f x) = Appl (eval f) (eval x)
+    fmap eval (LetRec f x p e) = LetRec f x p e
 
 data FType = FInt | FBool | FVar Int | FArrow FType FType | FNotClosed deriving (Eq, Ord)
 
 instance Show FType where
     show FInt = "Int"
     show FBool = "Bool"
+    show (FVar n) = "'a" ++ show n
     show (FArrow x y) = show x ++ " -> " ++ show y
     show _ = ""
 
@@ -55,6 +58,7 @@ alg (AST.Equal x y) = Fx' $ Equal x y
 alg (AST.If p x y) = Fx' $ If p x y
 alg (AST.Function s p) = Fx' $ Function s p
 alg (AST.Appl f x) = Fx' $ Appl f x
+alg (AST.LetRec f x p e) = Fx' $ LetRec f x p e
 
 typeTransform :: Fix AST.Expr -> LazyFix Expr
 typeTransform = cata alg

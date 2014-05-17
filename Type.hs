@@ -50,28 +50,34 @@ inconsistent e = Set.fold check False e
           check (FNotClosed, _) _ = True
           check _ r = r
 
-choose :: Int -> Equation -> FType -> FType
-choose _ _ FInt = FInt
-choose _ _ FBool = FBool
-choose n (FVar n', y) (FVar n'') = if n /= n' then FVar n'' else case y of
+choose :: Int -> Equations -> Equation -> FType -> FType
+choose _ _ _ FInt = FInt
+choose _ _ _ FBool = FBool
+choose n e (FVar n', FArrow x y) (FVar n'') = if n' == n
+    then FArrow (substitute x e) (substitute y e)
+    else FVar n''
+choose n _ (FVar n', y) (FVar n'') = if n /= n' then FVar n'' else case y of
     FInt -> FInt
     FBool -> FBool
     FVar n' -> if n' < n
         then if n'' < n' then FVar n'' else FVar n'
         else if n'' < n then FVar n'' else FVar n
-choose _ _ r = r
+choose _ _ _ r = r
 
 substitute :: FType -> Equations -> FType
 substitute FInt _ = FInt
 substitute FBool _ = FBool
-substitute (FVar n) e = Set.fold (choose n) (FVar n) e
+substitute (FVar n) e = Set.fold (choose n e) (FVar n) e
 substitute (FArrow x y) e = FArrow (substitute x e) (substitute y e)
 
+add :: Equation -> Equations -> Equations
+add (x, y) e = Set.insert (x, y) (Set.insert (y, x) e)
+
 two_add :: Equation -> Equation -> Equations -> Equations -> Equations
-two_add eq eq' e e' = Set.insert eq $ Set.insert eq' $ Set.union e e'
+two_add eq eq' e e' = add eq $ add eq' (Set.union e e')
 
 three_add :: Equation -> Equation -> Equation -> Equations -> Equations -> Equations -> Equations
-three_add eq eq' eq'' e e' e'' = Set.insert eq $ Set.union e (two_add eq' eq'' e' e'')
+three_add eq eq' eq'' e e' e'' = add eq $ Set.union e (two_add eq' eq'' e' e'')
 
 type Counter = State Int
 
@@ -101,13 +107,17 @@ alg _ (x `Mul` y) = (\(t, e) (t', e') -> (FInt, two_add (t, FInt) (t', FInt) e e
 alg _ (x `And` y) = (\(t, e) (t', e') -> (FBool, two_add (t, FBool) (t', FBool) e e')) <$> x <*> y
 alg _ (x `Or` y) = (\(t, e) (t', e') -> (FBool, two_add (t, FBool) (t', FBool) e e')) <$> x <*> y
 alg _ (x `Equal` y) = (\(t, e) (t', e') -> (FBool, two_add (t, FInt) (t', FInt) e e')) <$> x <*> y
-alg _ (If p x y) = (\n (t, e) (t', e') (t'', e'') ->
-    let h = FVar n in
+alg _ (If p x y) = (\n (t, e) (t', e') (t'', e'') -> let h = FVar n in
     (h, three_add (t, FBool) (t', t'') (t'', h) e e' e'')) <$> newHandle <*> p <*> x <*> y
 alg g (Function x p) = newHandle >>= \n -> let h = FVar n in
     typecheck' ((x, h) : g) p >>= \(t, e) -> return (FArrow h t, e)
 alg _ (Appl f x) = (\n (t, e) (t', e') -> let h = FVar n in
-    (h, Set.insert (t, FArrow t' h) (Set.union e e'))) <$> newHandle <*> f <*> x
+    (h, add (t, FArrow t' h) (Set.union e e'))) <$> newHandle <*> f <*> x
+alg g (LetRec f x p r) = newHandle >>= \n -> newHandle >>= \n' ->
+    let h = FVar n in let h' = FVar n' in
+    typecheck' ((f, h) : (x, h') : g) p >>= \(t, e) ->
+    typecheck' ((f, h) : g) r >>= \(t', e') ->
+    return (t', add (h, FArrow h' t) (Set.union e e'))
 
 typecheck' :: Hypotheses -> LazyFix Expr -> Counter TypeResult
 typecheck' g e = lazyMCata (alg g) e

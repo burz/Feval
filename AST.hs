@@ -2,6 +2,8 @@ module AST
 ( Expr(..)
 ) where
 
+import Algebra
+
 data Expr a
     = CInt Int
     | CBool Bool
@@ -14,6 +16,7 @@ data Expr a
     | If a a a
     | Function String a
     | Appl a a
+    | LetRec String String a a
 
 instance Functor Expr where
     fmap eval (CInt n) = CInt n
@@ -27,4 +30,5 @@ instance Functor Expr where
     fmap eval (If p e1 e2) = If (eval p) (eval e1) (eval e2)
     fmap eval (Function s p) = Function s (eval p)
     fmap eval (Appl f x) = Appl (eval f) (eval x)
+    fmap eval (LetRec f x p e) = LetRec f x (eval p) (eval e)
 

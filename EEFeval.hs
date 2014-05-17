@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleInstances #-}
+
 module EEFeval
 ( EF.Result(..)
 , Expr(..)
@@ -40,6 +42,34 @@ instance Functor Expr where
     fmap eval (Appl f x) = Appl (eval f) (eval x)
     fmap eval (Let s a x y) = Let s a (eval x) (eval y)
     fmap eval (Semi x y) = Semi (eval x) (eval y)
+
+instance Show (Fix Expr) where
+    show (Fx (CInt n)) = show n
+    show (Fx (CBool b)) = show b
+    show (Fx (CVar s)) = s
+    show (Fx (x `Add` y)) = show x ++ " + " ++ show y
+    show (Fx (x `Sub` y)) = show x ++ " - " ++ show y
+    show (Fx (x `Mul` y)) = show x ++ " * " ++ show y
+    show (Fx (x `Div` y)) = show x ++ " / " ++ show y
+    show (Fx (x `And` y)) = show x ++ " && " ++ show y
+    show (Fx (x `Or` y)) = show x ++ " || " ++ show y
+    show (Fx (x `Equal` y)) = show x ++ " = " ++ show y
+    show (Fx (If p x y)) = "If " ++ show p ++ " Then " ++ show x ++ " Else " ++ show y
+    show (Fx (Function x p)) = "Function " ++ x ++ " -> " ++ show p
+    show (Fx (Appl f x)) = (case f of
+        (Fx (CInt n)) -> show n ++ " "
+        (Fx (CBool b)) -> show b ++ " "
+        (Fx (CVar s)) -> s ++ " "
+        (Fx (Appl _ _)) -> show f ++ " "
+        _ -> "(" ++ show f ++ ") ") ++ (case x of
+            (Fx (CInt n)) -> show n
+            (Fx (CBool b)) -> show b
+            (Fx (CVar s)) -> s
+            (Fx (Appl _ _)) -> show x
+            _ -> "(" ++ show x ++ ")")
+    show (Fx (Let f a p e))
+        = "Let " ++ f ++ show_args ++ " = " ++ show p ++ " In " ++ show e
+        where show_args = foldr (\x s -> " " ++ x ++ s) "" a
 
 argument :: String -> [String] -> Bool
 argument s [] = False

@@ -1,13 +1,14 @@
 {-# LANGUAGE FlexibleInstances #-}
 
 module EEFeval
-( EF.Result(..)
+( F.Result(..)
 , Expr(..)
 , run
 ) where
 
 import Algebra
-import qualified EFeval as EF
+import qualified AST as AST
+import qualified Feval as F
 
 data Expr a
     = CInt Int
@@ -81,58 +82,59 @@ argument :: String -> [String] -> Bool
 argument s [] = False
 argument s (x:xs) = if x == s then True else argument s xs
 
-recursiveAlg :: String -> Algebra EF.Expr Bool
-recursiveAlg _ (EF.CInt n) = False
-recursiveAlg _ (EF.CBool b) = False
-recursiveAlg s (EF.CVar s') = if s' == s then True else False
-recursiveAlg _ (EF.Add x y) = x || y
-recursiveAlg _ (EF.Sub x y) = x || y
-recursiveAlg _ (EF.Mul x y) = x || y
-recursiveAlg _ (EF.Div x y) = x || y
-recursiveAlg _ (EF.And x y) = x || y
-recursiveAlg _ (EF.Or x y) = x || y
-recursiveAlg _ (EF.Not x) = x
-recursiveAlg _ (EF.Equal x y) = x || y
-recursiveAlg _ (EF.If p x y) = p || x || y
-recursiveAlg s (EF.Function s' p) = if s' == s then False else p
-recursiveAlg _ (EF.Appl f x) = f || x
-recursiveAlg s (EF.Let s' x e) = if s' == s then x else x || e
-recursiveAlg s (EF.LetRec f x p e) = if f == s
+recursiveAlg :: String -> Algebra AST.Expr Bool
+recursiveAlg _ (AST.CInt n) = False
+recursiveAlg _ (AST.CBool b) = False
+recursiveAlg s (AST.CVar s') = if s' == s then True else False
+recursiveAlg _ (AST.Add x y) = x || y
+recursiveAlg _ (AST.Sub x y) = x || y
+recursiveAlg _ (AST.Mul x y) = x || y
+recursiveAlg _ (AST.Div x y) = x || y
+recursiveAlg _ (AST.And x y) = x || y
+recursiveAlg _ (AST.Or x y) = x || y
+recursiveAlg _ (AST.Not x) = x
+recursiveAlg _ (AST.Equal x y) = x || y
+recursiveAlg _ (AST.If p x y) = p || x || y
+recursiveAlg s (AST.Function s' p) = if s' == s then False else p
+recursiveAlg _ (AST.Appl f x) = f || x
+recursiveAlg s (AST.LetRec f x p e) = if f == s
     then False
     else if x == s then p else p || e
-recursiveAlg _ (EF.Semi x y) = x || y
 
-recursive :: String -> Fix EF.Expr -> Bool
+recursive :: String -> Fix AST.Expr -> Bool
 recursive s = cata $ recursiveAlg s
 
-createWrapper :: [String] -> Fix EF.Expr -> Fix EF.Expr
+createWrapper :: [String] -> Fix AST.Expr -> Fix AST.Expr
 createWrapper [] e = e
-createWrapper (x:xs) e = Fx $ EF.Function x (createWrapper xs e)
+createWrapper (x:xs) e = Fx $ AST.Function x (createWrapper xs e)
 
-alg :: Algebra Expr (Fix EF.Expr)
-alg (CInt n) = Fx $ EF.CInt n
-alg (CBool b) = Fx $ EF.CBool b
-alg (CVar s) = Fx $ EF.CVar s
-alg (Add x y) = Fx $ EF.Add x y
-alg (Sub x y) = Fx $ EF.Sub x y
-alg (Mul x y) = Fx $ EF.Mul x y
-alg (Div x y) = Fx $ EF.Div x y
-alg (And x y) = Fx $ EF.And x y
-alg (Or x y) = Fx $ EF.Or x y
-alg (Not x) = Fx $ EF.Not x
-alg (Equal x y) = Fx $ EF.Equal x y
-alg (If p x y) = Fx $ EF.If p x y
-alg (Function s p) = Fx $ EF.Function s p
-alg (Appl f x) = Fx $ EF.Appl f x
-alg (Let f [] p e) = Fx $ EF.Let f p e
+letTransform :: String -> Fix AST.Expr -> Fix AST.Expr -> Fix AST.Expr
+letTransform s x y = Fx $ AST.Appl (Fx $ AST.Function s y) x
+
+alg :: Algebra Expr (Fix AST.Expr)
+alg (CInt n) = Fx $ AST.CInt n
+alg (CBool b) = Fx $ AST.CBool b
+alg (CVar s) = Fx $ AST.CVar s
+alg (Add x y) = Fx $ AST.Add x y
+alg (Sub x y) = Fx $ AST.Sub x y
+alg (Mul x y) = Fx $ AST.Mul x y
+alg (Div x y) = Fx $ AST.Div x y
+alg (And x y) = Fx $ AST.And x y
+alg (Or x y) = Fx $ AST.Or x y
+alg (Not x) = Fx $ AST.Not x
+alg (Equal x y) = Fx $ AST.Equal x y
+alg (If p x y) = Fx $ AST.If p x y
+alg (Function s p) = Fx $ AST.Function s p
+alg (Appl f x) = Fx $ AST.Appl f x
+alg (Let f [] p e) = letTransform f p e
 alg (Let f (a:as) p e) = if recursive f p
-    then Fx $ EF.LetRec f a (createWrapper as p) e
-    else Fx $ EF.Let f (createWrapper (a:as) p) e
-alg (Semi x y) = Fx $ EF.Semi x y
+    then Fx $ AST.LetRec f a (createWrapper as p) e
+    else letTransform f (createWrapper (a:as) p) e
+alg (Semi x y) = Fx $ AST.Appl (Fx $ AST.Function "_" y) x
 
-translate :: Fix Expr -> Fix EF.Expr
+translate :: Fix Expr -> Fix AST.Expr
 translate = cata alg
 
-run :: Fix Expr -> EF.Result
-run = EF.run . translate
+run :: Fix Expr -> F.Result
+run = F.run . translate
 

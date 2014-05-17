@@ -12,7 +12,7 @@ v ::=   x
 
 e ::=   v
       | (e)
-      | e "&&" e | e "||" e
+      | e "&&" e | e "||" e | !e
       | e + e | e * e | e = e
       | e e
       | If e Then e Else e
@@ -32,7 +32,7 @@ v ::=   x
 
 e ::=   v
       | (e)
-      | e "&&" e | e "||" e
+      | e "&&" e | e "||" e | !e
       | e + e | e * e | e = e
       | e e
       | If e Then e Else e
@@ -54,7 +54,7 @@ v ::=   x
 
 e ::=   v
       | (e)
-      | e "&&" e | e "||" e
+      | e "&&" e | e "||" e | !e
       | e + e | e * e | e = e
       | e e
       | If e Then e Else e

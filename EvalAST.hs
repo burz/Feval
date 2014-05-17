@@ -55,7 +55,7 @@ instance Show RVal where
     show (RBool b) = show b
     show (RFunction x e) = "Function " ++ x ++ " -> " ++ show e
 
-alg :: Algebra AST.ExprF (LazyFix Expr)
+alg :: Algebra AST.Expr (LazyFix Expr)
 alg (AST.CInt n) = Fx' $ CInt n
 alg (AST.CBool b) = Fx' $ CBool b
 alg (AST.CVar s) = Fx' $ CVar s
@@ -68,6 +68,6 @@ alg (AST.If p x y) = Fx' $ If p x y
 alg (AST.Function s p) = Fx' $ Function s p
 alg (AST.Appl f x) = Fx' $ Appl f x
 
-evalTransform :: Fix AST.ExprF -> LazyFix Expr
+evalTransform :: Fix AST.Expr -> LazyFix Expr
 evalTransform = cata alg
 

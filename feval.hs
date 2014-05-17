@@ -12,7 +12,7 @@ import Eval
 
 data Result = Result (RVal, FType) | TypeMismatch | InconsistentTypes deriving Show
 
-run :: Fix ExprF -> Result
+run :: Fix Expr -> Result
 run e = case typecheck (typeTransform e) of
     Nothing -> InconsistentTypes
     Just t -> case eval (evalTransform e) of

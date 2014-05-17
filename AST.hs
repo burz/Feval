@@ -1,8 +1,8 @@
 module AST
-( ExprF(..)
+( Expr(..)
 ) where
 
-data ExprF a
+data Expr a
     = CInt Int
     | CBool Bool
     | CVar String
@@ -15,7 +15,7 @@ data ExprF a
     | Function String a
     | Appl a a
 
-instance Functor ExprF where
+instance Functor Expr where
     fmap eval (CInt n) = CInt n
     fmap eval (CBool b) = CBool b
     fmap eval (CVar s) = CVar s

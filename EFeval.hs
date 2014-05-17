@@ -37,7 +37,7 @@ instance Functor Expr where
     fmap eval (Let s x y) = Let s (eval x) (eval y)
     fmap eval (Semi x y) = Semi (eval x) (eval y)
 
-alg :: Algebra Expr (Fix AST.ExprF)
+alg :: Algebra Expr (Fix AST.Expr)
 alg (CInt n) = Fx $ AST.CInt n
 alg (CBool b) = Fx $ AST.CBool b
 alg (CVar s) = Fx $ AST.CVar s
@@ -52,7 +52,7 @@ alg (Appl f x) = Fx $ AST.Appl f x
 alg (Let s x y) = Fx $ AST.Appl (Fx $ AST.Function s y) x
 alg (Semi x y) = Fx $ AST.Appl (Fx $ AST.Function "_" y) x
 
-translate :: Fix Expr -> Fix AST.ExprF
+translate :: Fix Expr -> Fix AST.Expr
 translate = cata alg
 
 run :: Fix Expr -> F.Result

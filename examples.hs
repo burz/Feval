@@ -2,7 +2,6 @@ import AST
 import Algebra
 import qualified Feval as F
 import qualified EFeval as EF
-import qualified EEFeval as EEF
 
 -- (2 + 3) * 4
 intExpr = Fx $ (Fx $ (Fx $ CInt 2) `Add` (Fx $ CInt 3)) `Mul` (Fx $ CInt 4)
@@ -51,16 +50,16 @@ twoArgRecExpr = let eql s = Fx $ Equal (Fx $ CVar s) (Fx $ CInt 0) in
     in Fx $ LetRec "f" "x" fun (tripapp "f" (Fx $ CInt 3) (Fx $ CInt 3))
 
 -- Let x = 4 In x + 4
-letExpr = Fx $ EEF.Let "x" [] (Fx $ EEF.CInt 4) (Fx $ EEF.Add (Fx $ EEF.CVar "x") (Fx $ EEF.CInt 4))
+letExpr = Fx $ EF.Let "x" [] (Fx $ EF.CInt 4) (Fx $ EF.Add (Fx $ EF.CVar "x") (Fx $ EF.CInt 4))
 
 -- 4; True
-semiExpr = Fx $ EEF.Semi (Fx $ EEF.CInt 4) (Fx $ EEF.CBool True)
+semiExpr = Fx $ EF.Semi (Fx $ EF.CInt 4) (Fx $ EF.CBool True)
 
 -- Let f x y = x - y In f 4 5
-eefLetExpr = let add = Fx $ EEF.Sub (Fx $ EEF.CVar "x") (Fx $ EEF.CVar "y") in
-    let innerappl = Fx $ EEF.Appl (Fx $ EEF.CVar "f") (Fx $ EEF.CInt 4) in
-    let appl = Fx $ EEF.Appl innerappl (Fx $ EEF.CInt 5)
-    in Fx $ EEF.Let "f" ["x", "y"] add appl
+eefLetExpr = let add = Fx $ EF.Sub (Fx $ EF.CVar "x") (Fx $ EF.CVar "y") in
+    let innerappl = Fx $ EF.Appl (Fx $ EF.CVar "f") (Fx $ EF.CInt 4) in
+    let appl = Fx $ EF.Appl innerappl (Fx $ EF.CInt 5)
+    in Fx $ EF.Let "f" ["x", "y"] add appl
 
 main = mapM_ print [ F.run   intExpr
                    , F.run   anotherIntExpr
@@ -73,8 +72,8 @@ main = mapM_ print [ F.run   intExpr
                    , F.run   applExpr
                    , F.run   letRecExpr
                    , F.run   twoArgRecExpr
-                   , EEF.run  letExpr
-                   , EEF.run  semiExpr
-                   , EEF.run eefLetExpr
+                   , EF.run  letExpr
+                   , EF.run  semiExpr
+                   , EF.run eefLetExpr
                    ]
 

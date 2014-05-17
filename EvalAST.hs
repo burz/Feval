@@ -22,7 +22,7 @@ data Expr a b
     | Equal b b
     | If b a a
     | Function String a
-    | Appl b b
+    | Appl b a
     | LetRec String String a a
 
 instance Functor (Expr (LazyFix Expr)) where
@@ -38,7 +38,7 @@ instance Functor (Expr (LazyFix Expr)) where
     fmap eval (x `Equal` y) = eval x `Equal` eval y
     fmap eval (If p e1 e2) = If (eval p) e1 e2
     fmap eval (Function s p) = Function s p
-    fmap eval (Appl f x) = Appl (eval f) (eval x)
+    fmap eval (Appl f x) = Appl (eval f) x
     fmap eval (LetRec f x p e) = LetRec f x p e
 
 instance Show (LazyFix Expr) where

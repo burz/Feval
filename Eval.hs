@@ -45,8 +45,8 @@ substitute s v (Fx' (LetRec f x p e)) = Fx' $ if f == s
         then LetRec f x p (substitute s v e)
         else LetRec f x (substitute s v p) (substitute s v e)
 
-apply :: RVal -> RVal -> Maybe RVal
-apply (RFunction x p) v = eval $ substitute x v p
+apply :: RVal -> LazyFix Expr -> Maybe RVal
+apply (RFunction x p) e = eval e >>= \v -> eval $ substitute x v p
 apply _ _ = Nothing
 
 alg :: EvalAlgebra
@@ -66,7 +66,7 @@ alg (If p e1 e2) = p >>= \p' -> case p' of
     RBool r -> if r then eval e1 else eval e2
     _ -> Nothing
 alg (Function x p) = Just $ RFunction x p
-alg (Appl f x) = f >>= \f' -> x >>= \x' -> apply f' x'
+alg (Appl f x) = f >>= \f' -> apply f' x
 alg (LetRec f x p e) =
     let e' = Fx' $ LetRec f x p (Fx' $ Appl (Fx' $ CVar f) (Fx' $ CVar x)) in
     let r = RFunction x (Fx' $ LetRec f x p e') in

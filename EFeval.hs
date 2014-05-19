@@ -11,7 +11,7 @@ import qualified AST as AST
 import qualified Feval as F
 
 data Expr a
-    = CInt Int
+    = CInt Integer
     | CBool Bool
     | CVar String
     | Add a a

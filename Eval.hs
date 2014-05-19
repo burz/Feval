@@ -9,7 +9,7 @@ import Algebra
 
 type EvalAlgebra = Algebra (Expr (LazyFix Expr)) (Maybe RVal)
 
-integer_operation :: (Int -> Int -> Int) -> RVal -> RVal -> Maybe RVal
+integer_operation :: (Integer -> Integer -> Integer) -> RVal -> RVal -> Maybe RVal
 integer_operation f (RInt x) (RInt y) = Just . RInt $ f x y
 integer_operation _ _ _ = Nothing
 

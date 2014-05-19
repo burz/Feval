@@ -5,7 +5,7 @@ module AST
 import Algebra
 
 data Expr a
-    = CInt Int
+    = CInt Integer
     | CBool Bool
     | CVar String
     | Add a a

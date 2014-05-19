@@ -10,7 +10,7 @@ import Algebra
 import qualified AST as AST
 
 data Expr a b
-    = CInt Int
+    = CInt Integer
     | CBool Bool
     | CVar String
     | Add b b
@@ -74,7 +74,7 @@ instance Show (LazyFix Expr) where
     show (Fx' (LetRec f x p e))
         = "Let Rec " ++ f ++ " " ++ x ++ " = " ++ show p ++ " In " ++ show e
 
-data RVal = RInt Int | RBool Bool | RFunction String (LazyFix Expr)
+data RVal = RInt Integer | RBool Bool | RFunction String (LazyFix Expr)
 
 instance Show RVal where
     show (RInt n) = show n

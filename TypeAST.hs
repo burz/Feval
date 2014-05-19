@@ -10,7 +10,7 @@ import Algebra
 import qualified AST as AST
 
 data Expr a b
-    = CInt Int
+    = CInt Integer
     | CBool Bool
     | CVar String
     | Add b b

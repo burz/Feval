@@ -1,5 +1,7 @@
 module Parser
-(
+( parseString
+, parseFile
+, ParseError
 ) where
 
 import Text.Parsec
@@ -9,7 +11,7 @@ import Control.Monad
 import Control.Applicative ((<$>), (<$), (<*>), (<*), (*>))
 
 import Algebra
-import EFeval
+import EFAST
 import Lexer
 
 type ExprParser = Parser (Fix Expr)

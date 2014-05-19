@@ -2,12 +2,14 @@ module EFeval
 ( F.Result(..)
 , Expr(..)
 , run
+, parseRun
 ) where
 
 import Algebra
 import qualified FAST as FAST
 import qualified Feval as F
 import EFAST
+import Parser
 
 argument :: String -> [String] -> Bool
 argument s [] = False
@@ -68,4 +70,9 @@ translate = cata alg
 
 run :: Fix Expr -> F.Result
 run = F.run . translate
+
+parseRun :: String -> Either ParseError F.Result
+parseRun s = case parseString s of
+    Left e -> Left e
+    Right e -> Right $ run e
 

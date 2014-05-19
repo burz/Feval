@@ -7,7 +7,7 @@ module Feval
 , run
 ) where
 
-import AST
+import FAST
 import EvalAST (evalTransform, RVal)
 import TypeAST (typeTransform, FType)
 import Algebra

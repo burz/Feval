@@ -1,4 +1,4 @@
-import AST
+import FAST
 import Algebra
 import qualified Feval as F
 import qualified EFeval as EF

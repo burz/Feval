@@ -69,13 +69,13 @@ letExpr = reserved "Let" *> do
     case s of (x:xs) -> return . Fx $ Let x xs e e'
 
 factor :: ExprParser
-factor =  cint
-    <|> cbool
-    <|> cvar
-    <|> parens expr
+factor = cint
+    <|>  cbool
+    <|>  cvar
+    <|>  parens expr
 
 term :: ExprParser
-term = appl
+term =  appl
     <|> factor
 
 expr :: ExprParser

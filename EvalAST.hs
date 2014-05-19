@@ -7,7 +7,7 @@ module EvalAST
 ) where
 
 import Algebra
-import qualified AST as AST
+import qualified FAST as FAST
 
 data Expr a b
     = CInt Integer
@@ -81,23 +81,23 @@ instance Show RVal where
     show (RBool b) = show b
     show (RFunction x e) = "Function " ++ x ++ " -> " ++ show e
 
-alg :: Algebra AST.Expr (LazyFix Expr)
-alg (AST.CInt n) = Fx' $ CInt n
-alg (AST.CBool b) = Fx' $ CBool b
-alg (AST.CVar s) = Fx' $ CVar s
-alg (AST.Add x y) = Fx' $ Add x y
-alg (AST.Sub x y) = Fx' $ Sub x y
-alg (AST.Mul x y) = Fx' $ Mul x y
-alg (AST.Div x y) = Fx' $ Div x y
-alg (AST.And x y) = Fx' $ And x y
-alg (AST.Or x y) = Fx' $ Or x y
-alg (AST.Not x) = Fx' $ Not x
-alg (AST.Equal x y) = Fx' $ Equal x y
-alg (AST.If p x y) = Fx' $ If p x y
-alg (AST.Function s p) = Fx' $ Function s p
-alg (AST.Appl f x) = Fx' $ Appl f x
-alg (AST.LetRec f x p e) = Fx' $ LetRec f x p e
+alg :: Algebra FAST.Expr (LazyFix Expr)
+alg (FAST.CInt n) = Fx' $ CInt n
+alg (FAST.CBool b) = Fx' $ CBool b
+alg (FAST.CVar s) = Fx' $ CVar s
+alg (FAST.Add x y) = Fx' $ Add x y
+alg (FAST.Sub x y) = Fx' $ Sub x y
+alg (FAST.Mul x y) = Fx' $ Mul x y
+alg (FAST.Div x y) = Fx' $ Div x y
+alg (FAST.And x y) = Fx' $ And x y
+alg (FAST.Or x y) = Fx' $ Or x y
+alg (FAST.Not x) = Fx' $ Not x
+alg (FAST.Equal x y) = Fx' $ Equal x y
+alg (FAST.If p x y) = Fx' $ If p x y
+alg (FAST.Function s p) = Fx' $ Function s p
+alg (FAST.Appl f x) = Fx' $ Appl f x
+alg (FAST.LetRec f x p e) = Fx' $ LetRec f x p e
 
-evalTransform :: Fix AST.Expr -> LazyFix Expr
+evalTransform :: Fix FAST.Expr -> LazyFix Expr
 evalTransform = cata alg
 

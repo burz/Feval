@@ -1,4 +1,4 @@
-module AST
+module FAST
 ( Expr(..)
 ) where
 

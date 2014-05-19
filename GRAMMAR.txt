@@ -13,7 +13,7 @@ v ::=   x
 e ::=   v
       | (e)
       | e "&&" e | e "||" e | !e
-      | e + e | e * e | e = e
+      | e + e | e - e | e * e | e / e | e = e
       | e e
       | If e Then e Else e
       | Let Rec x x = e In e
@@ -33,7 +33,7 @@ v ::=   x
 e ::=   v
       | (e)
       | e "&&" e | e "||" e | !e
-      | e + e | e * e | e = e
+      | e + e | e - e | e * e | e / e | e = e
       | e e
       | If e Then e Else e
       | Let x x ... x = e In e

@@ -14,11 +14,15 @@ data Expr a
     | Sub a a 
     | Mul a a 
     | Div a a 
+    | Mod a a
     | And a a 
     | Or a a 
     | Not a
     | Equal a a 
     | Less a a
+    | LessEq a a
+    | Great a a
+    | GreatEq a a
     | If a a a 
     | Function String a
     | Appl a a 
@@ -33,11 +37,15 @@ instance Functor Expr where
     fmap eval (x `Sub` y) = eval x `Sub` eval y
     fmap eval (x `Mul` y) = eval x `Mul` eval y
     fmap eval (x `Div` y) = eval x `Div` eval y
+    fmap eval (x `Mod` y) = eval x `Mod` eval y
     fmap eval (x `And` y) = eval x `And` eval y
     fmap eval (x `Or` y) = eval x `Or` eval y
     fmap eval (Not x) = Not $ eval x
     fmap eval (x `Equal` y) = eval x `Equal` eval y
     fmap eval (x `Less` y) = eval x `Less` eval y
+    fmap eval (x `LessEq` y) = eval x `LessEq` eval y
+    fmap eval (x `Great` y) = eval x `Great` eval y
+    fmap eval (x `GreatEq` y) = eval x `GreatEq` eval y
     fmap eval (If p e1 e2) = If (eval p) (eval e1) (eval e2)
     fmap eval (Function s p) = Function s (eval p)
     fmap eval (Appl f x) = Appl (eval f) (eval x)
@@ -52,6 +60,7 @@ instance Show (Fix Expr) where
     show (Fx (x `Sub` y)) = show x ++ " - " ++ show y
     show (Fx (x `Mul` y)) = show x ++ " * " ++ show y
     show (Fx (x `Div` y)) = show x ++ " / " ++ show y
+    show (Fx (x `Mod` y)) = show x ++ " % " ++ show y
     show (Fx (x `And` y)) = show x ++ " && " ++ show y
     show (Fx (x `Or` y)) = show x ++ " || " ++ show y
     show (Fx (Not x)) = "!" ++ (case x of
@@ -60,6 +69,9 @@ instance Show (Fix Expr) where
         _ -> "(" ++ show x ++ ")")
     show (Fx (x `Equal` y)) = show x ++ " = " ++ show y
     show (Fx (x `Less` y)) = show x ++ " < " ++ show y
+    show (Fx (x `LessEq` y)) = show x ++ " <= " ++ show y
+    show (Fx (x `Great` y)) = show x ++ " > " ++ show y
+    show (Fx (x `GreatEq` y)) = show x ++ " >= " ++ show y
     show (Fx (If p x y)) = "If " ++ show p ++ " Then " ++ show x ++ " Else " ++ show y
     show (Fx (Function x p)) = "Function " ++ x ++ " -> " ++ show p
     show (Fx (Appl f x)) = (case f of

@@ -31,17 +31,20 @@ binary n f a = Infix (reservedOp n *> return (\x -> Fx . f x)) a
 
 opTable = [ [ prefix "!" Not ]
           , [ appl ]
-          , [ binary "&&" And AssocLeft
-            , binary "*" Mul AssocLeft
+          , [ binary "*" Mul AssocLeft
             , binary "/" Div AssocLeft
-            ]
-          , [ binary "||" Or AssocLeft
-            , binary "+" Add AssocLeft
+            , binary "%" Mod AssocLeft ]
+          , [ binary "+" Add AssocLeft
             , binary "-" Sub AssocLeft
             ]
           , [ binary "=" Equal AssocLeft
             , binary "<" Less AssocLeft
+            , binary "<=" LessEq AssocLeft
+            , binary ">" Great AssocLeft
+            , binary ">=" GreatEq AssocLeft
             ]
+          , [ binary "&&" And AssocLeft ]
+          , [ binary "||" Or AssocLeft ]
           , [ binary ";" Semi AssocLeft ]
           ]
 

@@ -47,6 +47,19 @@ createWrapper (x:xs) e = Fx $ FAST.Function x (createWrapper xs e)
 letTransform :: String -> Fix FAST.Expr -> Fix FAST.Expr -> Fix FAST.Expr
 letTransform s x y = Fx $ FAST.Appl (Fx $ FAST.Function s y) x
 
+modTransform :: Fix FAST.Expr -> Fix FAST.Expr -> Fix FAST.Expr
+modTransform x y = let y' = Fx $ FAST.Mul y (Fx $ FAST.Div x y)
+    in Fx $ FAST.Sub x y'
+
+lteTransform :: Fix FAST.Expr -> Fix FAST.Expr -> Fix FAST.Expr
+lteTransform x y = Fx $ FAST.Or (Fx $ FAST.Less x y) (Fx $ FAST.Equal x y)
+
+gtTransform :: Fix FAST.Expr -> Fix FAST.Expr -> Fix FAST.Expr
+gtTransform x y = Fx . FAST.Not $ lteTransform x y
+
+gteTransform :: Fix FAST.Expr -> Fix FAST.Expr -> Fix FAST.Expr
+gteTransform x y = Fx . FAST.Not . Fx $ FAST.Less x y
+
 alg :: Algebra Expr (Fix FAST.Expr)
 alg (CInt n) = Fx $ FAST.CInt n
 alg (CBool b) = Fx $ FAST.CBool b
@@ -55,11 +68,15 @@ alg (Add x y) = Fx $ FAST.Add x y
 alg (Sub x y) = Fx $ FAST.Sub x y
 alg (Mul x y) = Fx $ FAST.Mul x y
 alg (Div x y) = Fx $ FAST.Div x y
+alg (Mod x y) = modTransform x y
 alg (And x y) = Fx $ FAST.And x y
 alg (Or x y) = Fx $ FAST.Or x y
 alg (Not x) = Fx $ FAST.Not x
 alg (Equal x y) = Fx $ FAST.Equal x y
 alg (Less x y) = Fx $ FAST.Less x y
+alg (LessEq x y) = lteTransform x y
+alg (Great x y) = gtTransform x y
+alg (GreatEq x y) = gteTransform x y
 alg (If p x y) = Fx $ FAST.If p x y
 alg (Function s p) = Fx $ FAST.Function s p
 alg (Appl f x) = Fx $ FAST.Appl f x

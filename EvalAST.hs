@@ -57,10 +57,10 @@ showCons' :: LazyFix Expr -> [LazyFix Expr]
 showCons' (Fx' (x `Cons` y)) = x : showCons' y
 showCons' e = [e]
 
-showCons :: LazyFix Expr -> LazyFix Expr -> String
-showCons x y = "[" ++ (foldr combine (show x) (showCons' y)) ++ "]"
+showCons :: LazyFix Expr -> String
+showCons e = "[" ++ (foldr combine "\b\b" (showCons' e)) ++ "]"
     where combine (Fx' Empty) b = b
-          combine a b = b ++ ", " ++ show a
+          combine a b = show a ++ ", " ++ b
 
 instance Show (LazyFix Expr) where
     show (Fx' (CInt n)) = show n
@@ -79,7 +79,7 @@ instance Show (LazyFix Expr) where
     show (Fx' (x `Equal` y)) = show x ++ " = " ++ show y
     show (Fx' (x `Less` y)) = show x ++ " < " ++ show y
     show (Fx' Empty) = "[]"
-    show (Fx' (x `Cons` y)) = showCons x y
+    show (Fx' (x `Cons` y)) = showCons . Fx' $ x `Cons` y
     show (Fx' (If p x y)) = "If " ++ show p ++ " Then " ++ show x ++ " Else " ++ show y
     show (Fx' (Function x p)) = "Function " ++ x ++ " -> " ++ show p
     show (Fx' (Appl f x)) = (case f of

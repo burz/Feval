@@ -105,6 +105,10 @@ semiS = "True; 75"
 
 crazyLetS = "Let f x y z = Function w -> If w = 0 Then 0 Else f w x y z In f 1 1 1 0"
 
+listS = "Case [1, 2, 3, 4, 5] Of [] -> [3, 4] | (x:xs) -> x : xs"
+
+listFunS = "(Function x -> Case x Of [] -> True | (x:xs) -> x && True) [True, False, True]"
+
 main = do
     putStrLn "strict expressions::\n--------------------"
     mapM_ print [ F.run  intExpr
@@ -141,5 +145,7 @@ main = do
                 , EF.parseRun letS
                 , EF.parseRun semiS
                 , EF.parseRun crazyLetS
+                , EF.parseRun listS
+                , EF.parseRun listFunS
                 ]
 

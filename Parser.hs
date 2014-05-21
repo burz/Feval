@@ -57,9 +57,7 @@ list = do
     reservedOp "["
     l <- sepBy expr comma
     reservedOp "]"
-    case l of
-        [] -> return $ Fx Empty
-        x -> return $ toCons x
+    return $ toCons l
     where toCons [] = Fx Empty
           toCons (x:xs) = Fx $ Cons x (toCons xs)
 

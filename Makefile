@@ -7,5 +7,5 @@ feval:
 		ghc feval.hs
 
 clean:
-		rm *.o *.hi
+		rm -f *.o *.hi examples feval
 

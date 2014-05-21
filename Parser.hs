@@ -4,7 +4,7 @@ module Parser
 , parseFile
 ) where
 
-import Text.Parsec
+import Text.Parsec hiding (Empty)
 import Text.Parsec.String
 import Text.Parsec.Expr
 import Control.Monad
@@ -45,11 +45,23 @@ opTable = [ [ prefix "!" Not ]
             ]
           , [ binary "&&" And AssocLeft ]
           , [ binary "||" Or AssocLeft ]
+          , [ binary ":" Cons AssocRight ]
           , [ binary ";" Semi AssocLeft ]
           ]
 
 opExpr :: ExprParser
 opExpr = buildExpressionParser opTable term
+
+list :: ExprParser
+list = do
+    reservedOp "["
+    l <- sepBy expr comma
+    reservedOp "]"
+    case l of
+        [] -> return $ Fx Empty
+        x -> return $ toCons x
+    where toCons [] = Fx Empty
+          toCons (x:xs) = Fx $ Cons x (toCons xs)
 
 ifExpr :: ExprParser
 ifExpr = reserved "If" *> ((\x y -> Fx . If x y)
@@ -59,7 +71,7 @@ function :: ExprParser
 function = reserved "Function" *> ((\x -> Fx . Function x)
     <$> identifier <*> (reservedOp "->" *> expr))
 
-appl = Infix (whiteSpace *> notFollowedBy (choice $ map reservedOp reservedOpNames)
+appl = Infix (whiteSpace *> notFollowedBy (choice $ map reservedOp opNames)
     *> return (\x y -> Fx $ Appl x y)) AssocLeft
 
 letExpr :: ExprParser
@@ -71,16 +83,33 @@ letExpr = reserved "Let" *> do
     e' <- expr
     case s of (x:xs) -> return . Fx $ Let x xs e e'
 
+caseExpr :: ExprParser
+caseExpr = reserved "Case" *> do
+    p <- expr
+    reserved "Of" *> reservedOp "[" *> reservedOp "]" *> reservedOp "->"
+    x <- expr
+    reservedOp "|"
+    (s, t) <- parens $ do{ s' <- identifier
+                         ; reservedOp ":"
+                         ; t' <- identifier
+                         ; return (s', t')
+                         }
+    reservedOp "->"
+    y <- expr
+    return . Fx $ Case p x s t y
+
 term :: ExprParser
 term =  cint
     <|> cbool
     <|> cvar
+    <|> list
     <|> parens expr
 
 expr :: ExprParser
 expr =  function
     <|> letExpr
     <|> ifExpr
+    <|> caseExpr
     <|> opExpr
     <|> term
 

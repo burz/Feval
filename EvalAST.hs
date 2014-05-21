@@ -3,6 +3,8 @@
 module EvalAST
 ( Expr(..)
 , RVal(..)
+, valueTransform
+, showCons
 , evalTransform
 ) where
 
@@ -22,10 +24,13 @@ data Expr a b
     | Not b
     | Equal b b
     | Less b b
+    | Empty
+    | Cons b b
     | If b a a
     | Function String a
     | Appl b a
     | LetRec String String a a
+    | Case b a String String a
 
 instance Functor (Expr (LazyFix Expr)) where
     fmap eval (CInt n) = CInt n
@@ -40,10 +45,22 @@ instance Functor (Expr (LazyFix Expr)) where
     fmap eval (Not x) = Not $ eval x
     fmap eval (x `Equal` y) = eval x `Equal` eval y
     fmap eval (x `Less` y) = eval x `Less` eval y
+    fmap eval Empty = Empty
+    fmap eval (x `Cons` y) = eval x `Cons` eval y
     fmap eval (If p e1 e2) = If (eval p) e1 e2
     fmap eval (Function s p) = Function s p
     fmap eval (Appl f x) = Appl (eval f) x
     fmap eval (LetRec f x p e) = LetRec f x p e
+    fmap eval (Case p x s t y) = Case (eval p) x s t y
+
+showCons' :: LazyFix Expr -> [LazyFix Expr]
+showCons' (Fx' (x `Cons` y)) = x : showCons' y
+showCons' e = [e]
+
+showCons :: LazyFix Expr -> LazyFix Expr -> String
+showCons x y = "[" ++ (foldr combine (show x) (showCons' y)) ++ "]"
+    where combine (Fx' Empty) b = b
+          combine a b = b ++ ", " ++ show a
 
 instance Show (LazyFix Expr) where
     show (Fx' (CInt n)) = show n
@@ -61,6 +78,8 @@ instance Show (LazyFix Expr) where
         _ -> "(" ++ show x ++ ")")
     show (Fx' (x `Equal` y)) = show x ++ " = " ++ show y
     show (Fx' (x `Less` y)) = show x ++ " < " ++ show y
+    show (Fx' Empty) = "[]"
+    show (Fx' (x `Cons` y)) = showCons x y
     show (Fx' (If p x y)) = "If " ++ show p ++ " Then " ++ show x ++ " Else " ++ show y
     show (Fx' (Function x p)) = "Function " ++ x ++ " -> " ++ show p
     show (Fx' (Appl f x)) = (case f of
@@ -76,13 +95,24 @@ instance Show (LazyFix Expr) where
             _ -> "(" ++ show x ++ ")")
     show (Fx' (LetRec f x p e))
         = "Let Rec " ++ f ++ " " ++ x ++ " = " ++ show p ++ " In " ++ show e
+    show (Fx' (Case p x s t y)) = "Case " ++ show x ++ " Of [] -> " ++ show x
+        ++ " | (" ++ s ++ ", " ++ t ++ ") -> " ++ show y
 
-data RVal = RInt Integer | RBool Bool | RFunction String (LazyFix Expr)
+data RVal = RInt Integer
+          | RBool Bool
+          | RFunction String (LazyFix Expr)
+          | REmpty
+          | RCons RVal RVal
+
+valueTransform :: RVal -> LazyFix Expr
+valueTransform (RInt n) = Fx' $ CInt n
+valueTransform (RBool b) = Fx' $ CBool b
+valueTransform (RFunction s p) = Fx' $ Function s p
+valueTransform REmpty = Fx' $ Empty
+valueTransform (RCons x y) = Fx' $ Cons (valueTransform x) (valueTransform y)
 
 instance Show RVal where
-    show (RInt n) = show n
-    show (RBool b) = show b
-    show (RFunction x e) = "Function " ++ x ++ " -> " ++ show e
+    show = show . valueTransform
 
 alg :: Algebra FAST.Expr (LazyFix Expr)
 alg (FAST.CInt n) = Fx' $ CInt n
@@ -97,10 +127,13 @@ alg (FAST.Or x y) = Fx' $ Or x y
 alg (FAST.Not x) = Fx' $ Not x
 alg (FAST.Equal x y) = Fx' $ Equal x y
 alg (FAST.Less x y) = Fx' $ Less x y
+alg (FAST.Empty) = Fx' $ Empty
+alg (FAST.Cons x y) = Fx' $ Cons x y
 alg (FAST.If p x y) = Fx' $ If p x y
 alg (FAST.Function s p) = Fx' $ Function s p
 alg (FAST.Appl f x) = Fx' $ Appl f x
 alg (FAST.LetRec f x p e) = Fx' $ LetRec f x p e
+alg (FAST.Case p x s t y) = Fx' $ Case p x s t y
 
 evalTransform :: Fix FAST.Expr -> LazyFix Expr
 evalTransform = cata alg

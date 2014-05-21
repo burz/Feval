@@ -30,12 +30,15 @@ recursiveAlg _ (FAST.Or x y) = x || y
 recursiveAlg _ (FAST.Not x) = x
 recursiveAlg _ (FAST.Equal x y) = x || y
 recursiveAlg _ (FAST.Less x y) = x || y
+recursiveAlg _ FAST.Empty = False
+recursiveAlg _ (FAST.Cons x y) = x || y
 recursiveAlg _ (FAST.If p x y) = p || x || y
 recursiveAlg s (FAST.Function s' p) = if s' == s then False else p
 recursiveAlg _ (FAST.Appl f x) = f || x
 recursiveAlg s (FAST.LetRec f x p e) = if f == s
     then False
     else if x == s then p else p || e
+recursiveAlg _ (FAST.Case p x _ _ y) = p || x || y
 
 recursive :: String -> Fix FAST.Expr -> Bool
 recursive s = cata $ recursiveAlg s
@@ -77,6 +80,8 @@ alg (Less x y) = Fx $ FAST.Less x y
 alg (LessEq x y) = lteTransform x y
 alg (Great x y) = gtTransform x y
 alg (GreatEq x y) = gteTransform x y
+alg Empty = Fx FAST.Empty
+alg (Cons x y) = Fx $ FAST.Cons x y
 alg (If p x y) = Fx $ FAST.If p x y
 alg (Function s p) = Fx $ FAST.Function s p
 alg (Appl f x) = Fx $ FAST.Appl f x
@@ -85,6 +90,7 @@ alg (Let f (a:as) p e) = if recursive f p
     then Fx $ FAST.LetRec f a (createWrapper as p) e
     else letTransform f (createWrapper (a:as) p) e
 alg (Semi x y) = Fx $ FAST.Appl (Fx $ FAST.Function "_" y) x
+alg (Case p x s t y) = Fx $ FAST.Case p x s t y
 
 translate :: Fix Expr -> Fix FAST.Expr
 translate = cata alg

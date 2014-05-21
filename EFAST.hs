@@ -23,11 +23,14 @@ data Expr a
     | LessEq a a
     | Great a a
     | GreatEq a a
+    | Empty
+    | Cons a a
     | If a a a 
     | Function String a
     | Appl a a 
     | Let String [String] a a 
-    | Semi a a 
+    | Semi a a
+    | Case a a String String a
 
 instance Functor Expr where
     fmap eval (CInt n) = CInt n
@@ -46,11 +49,23 @@ instance Functor Expr where
     fmap eval (x `LessEq` y) = eval x `LessEq` eval y
     fmap eval (x `Great` y) = eval x `Great` eval y
     fmap eval (x `GreatEq` y) = eval x `GreatEq` eval y
+    fmap eval Empty = Empty
+    fmap eval (x `Cons` y) = eval x `Cons` eval y
     fmap eval (If p e1 e2) = If (eval p) (eval e1) (eval e2)
     fmap eval (Function s p) = Function s (eval p)
     fmap eval (Appl f x) = Appl (eval f) (eval x)
     fmap eval (Let s a x y) = Let s a (eval x) (eval y)
     fmap eval (Semi x y) = Semi (eval x) (eval y)
+    fmap eval (Case p x s t y) = Case (eval p) (eval x) s t (eval y)
+
+showCons' :: Fix Expr -> [Fix Expr]
+showCons' (Fx (x `Cons` y)) = x : showCons' y
+showCons' e = [e]
+
+showCons :: Fix Expr -> Fix Expr -> String
+showCons x y = "[" ++ (foldr combine (show x) (showCons' y)) ++ "]"
+    where combine (Fx Empty) b = b
+          combine a b = b ++ ", " ++ show a
 
 instance Show (Fix Expr) where
     show (Fx (CInt n)) = show n
@@ -72,6 +87,8 @@ instance Show (Fix Expr) where
     show (Fx (x `LessEq` y)) = show x ++ " <= " ++ show y
     show (Fx (x `Great` y)) = show x ++ " > " ++ show y
     show (Fx (x `GreatEq` y)) = show x ++ " >= " ++ show y
+    show (Fx Empty) = "[]"
+    show (Fx (x `Cons` y)) = showCons x y
     show (Fx (If p x y)) = "If " ++ show p ++ " Then " ++ show x ++ " Else " ++ show y
     show (Fx (Function x p)) = "Function " ++ x ++ " -> " ++ show p
     show (Fx (Appl f x)) = (case f of
@@ -88,4 +105,6 @@ instance Show (Fix Expr) where
     show (Fx (Let f a p e))
         = "Let " ++ f ++ show_args ++ " = " ++ show p ++ " In " ++ show e
         where show_args = foldr (\x s -> " " ++ x ++ s) "" a
+    show (Fx (Case p x s t y)) = "Case " ++ show x ++ " Of [] -> " ++ show x
+        ++ " | (" ++ s ++ ", " ++ t ++ ") -> " ++ show y
 

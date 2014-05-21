@@ -9,6 +9,7 @@ v ::=   x
       | True | False
       | 0 | 1 | -1 | 2 | -2 | ...
       | Function x -> e
+      | [] | [v, v, ..., v]
 
 e ::=   v
       | (e)
@@ -18,6 +19,7 @@ e ::=   v
       | e e
       | If e Then e Else e
       | Let Rec x x = e In e
+      | e : e | Case e Of [] -> e "|" (x : x) -> e
 
 ## Grammar for EFeval
 
@@ -30,6 +32,7 @@ v ::=   x
       | True | False
       | 0 | 1 | -1 | 2 | -2 | ...
       | Function x -> e
+      | [] | [v, v, ..., v]
 
 e ::=   v
       | (e)
@@ -40,4 +43,5 @@ e ::=   v
       | If e Then e Else e
       | Let x x ... x = e In e
       | e; e
+      | e : e | Case e Of [] -> e "|" (x : x) -> e
 

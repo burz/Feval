@@ -17,10 +17,13 @@ data Expr a
     | Not a
     | Equal a a
     | Less a a
+    | Empty
+    | Cons a a
     | If a a a
     | Function String a
     | Appl a a
     | LetRec String String a a
+    | Case a a String String a
 
 instance Functor Expr where
     fmap eval (CInt n) = CInt n
@@ -35,8 +38,11 @@ instance Functor Expr where
     fmap eval (Not x) = Not $ eval x
     fmap eval (x `Equal` y) = eval x `Equal` eval y
     fmap eval (x `Less` y) = eval x `Less` eval y
+    fmap eval Empty = Empty
+    fmap eval (x `Cons` y) = eval x `Cons` eval y
     fmap eval (If p e1 e2) = If (eval p) (eval e1) (eval e2)
     fmap eval (Function s p) = Function s (eval p)
     fmap eval (Appl f x) = Appl (eval f) (eval x)
     fmap eval (LetRec f x p e) = LetRec f x (eval p) (eval e)
+    fmap eval (Case p x s t y) = Case (eval p) (eval x) s t (eval y)
 

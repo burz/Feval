@@ -22,10 +22,13 @@ data Expr a b
     | Not b
     | Equal b b
     | Less b b
+    | Empty
+    | Cons b b
     | If b b b
     | Function String a
     | Appl b b
     | LetRec String String a a
+    | Case b b String String a
 
 instance Functor (Expr (LazyFix Expr)) where
     fmap eval (CInt n) = CInt n
@@ -40,18 +43,27 @@ instance Functor (Expr (LazyFix Expr)) where
     fmap eval (Not x) = Not $ eval x
     fmap eval (x `Equal` y) = eval x `Equal` eval y
     fmap eval (x `Less` y) = eval x `Less` eval y
+    fmap eval Empty = Empty
+    fmap eval (x `Cons` y) = eval x `Cons` eval y
     fmap eval (If p e1 e2) = If (eval p) (eval e1) (eval e2)
     fmap eval (Function s p) = Function s p
     fmap eval (Appl f x) = Appl (eval f) (eval x)
     fmap eval (LetRec f x p e) = LetRec f x p e
+    fmap eval (Case p x s t y) = Case (eval p) (eval x) s t y
 
-data FType = FInt | FBool | FVar Int | FArrow FType FType | FNotClosed deriving (Eq, Ord)
+data FType = FInt
+           | FBool
+           | FVar Int
+           | FArrow FType FType
+           | FList FType
+           | FNotClosed deriving (Eq, Ord)
 
 instance Show FType where
     show FInt = "Int"
     show FBool = "Bool"
     show (FVar n) = "'a" ++ show n
     show (FArrow x y) = show x ++ " -> " ++ show y
+    show (FList t) = "[" ++ show t ++ "]"
     show _ = ""
 
 alg :: Algebra FAST.Expr (LazyFix Expr)
@@ -67,10 +79,13 @@ alg (FAST.Or x y) = Fx' $ Or x y
 alg (FAST.Not x) = Fx' $ Not x
 alg (FAST.Equal x y) = Fx' $ Equal x y
 alg (FAST.Less x y) = Fx' $ Less x y
+alg FAST.Empty = Fx' $ Empty
+alg (FAST.Cons x y) = Fx' $ Cons x y
 alg (FAST.If p x y) = Fx' $ If p x y
 alg (FAST.Function s p) = Fx' $ Function s p
 alg (FAST.Appl f x) = Fx' $ Appl f x
 alg (FAST.LetRec f x p e) = Fx' $ LetRec f x p e
+alg (FAST.Case p x s t y) = Fx' $ Case p x s t y
 
 typeTransform :: Fix FAST.Expr -> LazyFix Expr
 typeTransform = cata alg

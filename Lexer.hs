@@ -12,7 +12,7 @@ import Text.Parsec
 import qualified Text.Parsec.Token as Token
 import Text.Parsec.Language
 
-reservedOpNames = words "-> && || ! + - * / = ;"
+reservedOpNames = words "-> && || ! + - * / = ; <"
 
 lexer = Token.makeTokenParser emptyDef
     { Token.commentStart = "/*"

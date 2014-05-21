@@ -34,6 +34,7 @@ substitute s v (Fx' (And x y)) = Fx' $ And (substitute s v x) (substitute s v y)
 substitute s v (Fx' (Or x y)) = Fx' $ Or (substitute s v x) (substitute s v y)
 substitute s v (Fx' (Not x)) = Fx' . Not $ substitute s v x
 substitute s v (Fx' (Equal x y)) = Fx' $ Equal (substitute s v x) (substitute s v y)
+substitute s v (Fx' (Less x y)) = Fx' $ Less (substitute s v x) (substitute s v y)
 substitute s v (Fx' (If p x y))
     = Fx' $ If (substitute s v p) (substitute s v x) (substitute s v y)
 substitute s v (Fx' (Function x p)) = Fx' $ if x == s
@@ -65,6 +66,9 @@ alg (Not x) = x >>= \x' -> case x' of
     _ -> Nothing
 alg (x `Equal` y) = x >>= \x' -> y >>= \y' -> case (x', y') of
     (RInt m, RInt n) -> Just . RBool $ m == n
+    _ -> Nothing
+alg (x `Less` y) = x >>= \x' -> y >>= \y' -> case (x', y') of
+    (RInt m, RInt n) -> Just . RBool $ m < n
     _ -> Nothing
 alg (If p e1 e2) = p >>= \p' -> case p' of
     RBool r -> if r then eval e1 else eval e2

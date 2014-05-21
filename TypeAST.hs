@@ -21,6 +21,7 @@ data Expr a b
     | Or b b
     | Not b
     | Equal b b
+    | Less b b
     | If b b b
     | Function String a
     | Appl b b
@@ -38,6 +39,7 @@ instance Functor (Expr (LazyFix Expr)) where
     fmap eval (x `Or` y) = eval x `Or` eval y
     fmap eval (Not x) = Not $ eval x
     fmap eval (x `Equal` y) = eval x `Equal` eval y
+    fmap eval (x `Less` y) = eval x `Less` eval y
     fmap eval (If p e1 e2) = If (eval p) (eval e1) (eval e2)
     fmap eval (Function s p) = Function s p
     fmap eval (Appl f x) = Appl (eval f) (eval x)
@@ -64,6 +66,7 @@ alg (FAST.And x y) = Fx' $ And x y
 alg (FAST.Or x y) = Fx' $ Or x y
 alg (FAST.Not x) = Fx' $ Not x
 alg (FAST.Equal x y) = Fx' $ Equal x y
+alg (FAST.Less x y) = Fx' $ Less x y
 alg (FAST.If p x y) = Fx' $ If p x y
 alg (FAST.Function s p) = Fx' $ Function s p
 alg (FAST.Appl f x) = Fx' $ Appl f x

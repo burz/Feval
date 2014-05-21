@@ -16,6 +16,7 @@ data Expr a
     | Or a a
     | Not a
     | Equal a a
+    | Less a a
     | If a a a
     | Function String a
     | Appl a a
@@ -33,6 +34,7 @@ instance Functor Expr where
     fmap eval (x `Or` y) = eval x `Or` eval y
     fmap eval (Not x) = Not $ eval x
     fmap eval (x `Equal` y) = eval x `Equal` eval y
+    fmap eval (x `Less` y) = eval x `Less` eval y
     fmap eval (If p e1 e2) = If (eval p) (eval e1) (eval e2)
     fmap eval (Function s p) = Function s (eval p)
     fmap eval (Appl f x) = Appl (eval f) (eval x)

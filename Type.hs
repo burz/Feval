@@ -109,6 +109,7 @@ alg _ (x `Div` y) = (\(t, e) (t', e') -> (FInt, two_add (t, FInt) (t', FInt) e e
 alg _ (x `And` y) = (\(t, e) (t', e') -> (FBool, two_add (t, FBool) (t', FBool) e e')) <$> x <*> y
 alg _ (x `Or` y) = (\(t, e) (t', e') -> (FBool, two_add (t, FBool) (t', FBool) e e')) <$> x <*> y
 alg _ (x `Equal` y) = (\(t, e) (t', e') -> (FBool, two_add (t, FInt) (t', FInt) e e')) <$> x <*> y
+alg _ (x `Less` y) = (\(t, e) (t', e') -> (FBool, two_add (t, FInt) (t', FInt) e e')) <$> x <*> y
 alg _ (Not x) = (\(t, e) -> (FBool, add (t, FBool) e)) <$> x
 alg _ (If p x y) = (\n (t, e) (t', e') (t'', e'') -> let h = FVar n in
     (h, three_add (t, FBool) (t', t'') (t'', h) e e' e'')) <$> newHandle <*> p <*> x <*> y

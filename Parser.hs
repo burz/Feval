@@ -39,7 +39,9 @@ opTable = [ [ prefix "!" Not ]
             , binary "+" Add AssocLeft
             , binary "-" Sub AssocLeft
             ]
-          , [ binary "=" Equal AssocLeft ]
+          , [ binary "=" Equal AssocLeft
+            , binary "<" Less AssocLeft
+            ]
           , [ binary ";" Semi AssocLeft ]
           ]
 

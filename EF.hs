@@ -29,6 +29,7 @@ recursiveAlg _ (FAST.And x y) = x || y
 recursiveAlg _ (FAST.Or x y) = x || y
 recursiveAlg _ (FAST.Not x) = x
 recursiveAlg _ (FAST.Equal x y) = x || y
+recursiveAlg _ (FAST.Less x y) = x || y
 recursiveAlg _ (FAST.If p x y) = p || x || y
 recursiveAlg s (FAST.Function s' p) = if s' == s then False else p
 recursiveAlg _ (FAST.Appl f x) = f || x
@@ -58,6 +59,7 @@ alg (And x y) = Fx $ FAST.And x y
 alg (Or x y) = Fx $ FAST.Or x y
 alg (Not x) = Fx $ FAST.Not x
 alg (Equal x y) = Fx $ FAST.Equal x y
+alg (Less x y) = Fx $ FAST.Less x y
 alg (If p x y) = Fx $ FAST.If p x y
 alg (Function s p) = Fx $ FAST.Function s p
 alg (Appl f x) = Fx $ FAST.Appl f x

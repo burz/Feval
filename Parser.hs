@@ -30,6 +30,7 @@ prefix n f = Prefix (reservedOp n *> return (Fx . f))
 binary n f a = Infix (reservedOp n *> return (\x -> Fx . f x)) a
 
 opTable = [ [ prefix "!" Not ]
+          , [ appl ]
           , [ binary "&&" And AssocLeft
             , binary "*" Mul AssocLeft
             , binary "/" Div AssocLeft
@@ -53,13 +54,8 @@ function :: ExprParser
 function = reserved "Function" *> ((\x -> Fx . Function x)
     <$> identifier <*> (reservedOp "->" *> expr))
 
--- some sort of error with appl ==> consumes operators
-appl :: ExprParser
-appl = try $ do
-    s <- sepBy1 factor whiteSpace
-    case s of
-        (x:y:xs) -> return $ foldr (\a b -> Fx $ Appl b a) (Fx $ Appl x y) xs
-        (x:[]) -> mzero
+appl = Infix (whiteSpace *> notFollowedBy (choice $ map reservedOp reservedOpNames)
+    *> return (\x y -> Fx $ Appl x y)) AssocLeft
 
 letExpr :: ExprParser
 letExpr = reserved "Let" *> do
@@ -70,20 +66,17 @@ letExpr = reserved "Let" *> do
     e' <- expr
     case s of (x:xs) -> return . Fx $ Let x xs e e'
 
-factor :: ExprParser
-factor = cint
-    <|>  cbool
-    <|>  cvar
-    <|>  parens expr
-
 term :: ExprParser
-term =  appl
-    <|> factor
+term =  cint
+    <|> cbool
+    <|> cvar
+    <|> parens expr
 
 expr :: ExprParser
 expr =  function
-    <|> opExpr
     <|> letExpr
+    <|> ifExpr
+    <|> opExpr
     <|> term
 
 parseString :: String -> Either ParseError (Fix Expr)

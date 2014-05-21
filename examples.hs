@@ -71,20 +71,75 @@ recExpr = let eql s = Fx $ EF.Equal (Fx $ EF.CVar s) (Fx $ EF.CInt 0) in
     let ifstmt = Fx $ EF.If (eql "x") innerif xadd
     in Fx $ EF.Let "f" ["x", "y"] ifstmt (tripapp "f" (Fx $ EF.CInt 3) (Fx $ EF.CInt 3))
 
-main = mapM_ print [ F.run  intExpr
-                   , F.run  anotherIntExpr
-                   , F.run  boolExpr
-                   , F.run  notExpr
-                   , F.run  eqlExpr
-                   , F.run  badExpr
-                   , F.run  ifExpr
-                   , F.run  funExpr
-                   , F.run  applExpr
-                   , F.run  letRecExpr
-                   , F.run  twoArgRecExpr
-                   , EF.run letExpr
-                   , EF.run semiExpr
-                   , EF.run recExpr
-                   , EF.run eefLetExpr
-                   ]
+intS = "1"
+
+boolS = "True"
+
+varS = "hello"
+
+addS = "4 + 6 + 45"
+
+subS = "784 - 84"
+
+mulS = "5 * 5"
+
+divS = "56 / 32"
+
+andS = "True && False"
+
+orS = "True || False"
+
+notS = "!False"
+
+equalS = "67 = 45"
+
+ifS = "If 5 = 5 Then 5 Else 6"
+
+functionS = "Function x -> x + 56"
+
+applS = "(Function x -> True && x) False"
+
+letS = "Let f x = If x = 0 Then 0 Else x + (f (x - 1)) In f 3"
+
+semiS = "True; 75"
+
+crazyLetS = "Let f x y z = Function w -> If w = 0 Then 0 Else f w x y z In f 1 1 1 0"
+
+main = do
+    putStrLn "strict expressions::\n--------------------"
+    mapM_ print [ F.run  intExpr
+                , F.run  anotherIntExpr
+                , F.run  boolExpr
+                , F.run  notExpr
+                , F.run  eqlExpr
+                , F.run  badExpr
+                , F.run  ifExpr
+                , F.run  funExpr
+                , F.run  applExpr
+                , F.run  letRecExpr
+                , F.run  twoArgRecExpr
+                , EF.run letExpr
+                , EF.run semiExpr
+                , EF.run recExpr
+                , EF.run eefLetExpr
+                ]
+    putStrLn "parsed expressions::\n--------------------"
+    mapM_ print [ EF.parseRun intS
+                , EF.parseRun boolS
+                , EF.parseRun varS
+                , EF.parseRun addS
+                , EF.parseRun subS
+                , EF.parseRun mulS
+                , EF.parseRun divS
+                , EF.parseRun andS
+                , EF.parseRun orS
+                , EF.parseRun notS
+                , EF.parseRun equalS
+                , EF.parseRun ifS
+                , EF.parseRun functionS
+                , EF.parseRun applS
+                , EF.parseRun letS
+                , EF.parseRun semiS
+                , EF.parseRun crazyLetS
+                ]
 

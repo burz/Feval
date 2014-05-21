@@ -1,5 +1,6 @@
 module Lexer
-( identifier
+( reservedOpNames
+, identifier
 , reserved
 , reservedOp
 , parens
@@ -11,6 +12,8 @@ import Text.Parsec
 import qualified Text.Parsec.Token as Token
 import Text.Parsec.Language
 
+reservedOpNames = words "-> && || ! + - * / = ;"
+
 lexer = Token.makeTokenParser emptyDef
     { Token.commentStart = "/*"
     , Token.commentEnd = "*/"
@@ -18,7 +21,7 @@ lexer = Token.makeTokenParser emptyDef
     , Token.identStart = letter
     , Token.identLetter = alphaNum <|> char '_' <|> char '\''
     , Token.reservedNames = words "True False Function If Then Else Let In"
-    , Token.reservedOpNames = words "-> && || ! + - * / = ;"
+    , Token.reservedOpNames = reservedOpNames
     }
 
 identifier = Token.identifier lexer

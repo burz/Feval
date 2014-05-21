@@ -4,6 +4,7 @@ module EF
 , run
 , ParseError
 , parseRun
+, parseFileRun
 ) where
 
 import Algebra
@@ -76,4 +77,11 @@ parseRun :: String -> Either ParseError F.Result
 parseRun s = case parseString s of
     Left e -> Left e
     Right e -> Right $ run e
+
+parseFileRun :: FilePath -> IO (Either ParseError F.Result)
+parseFileRun p = do
+    r <- parseFile p
+    case r of
+        Left e -> return $ Left e
+        Right e -> return . Right $ run e
 

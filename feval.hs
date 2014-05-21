@@ -1,4 +1,4 @@
-import System.IO
+import System.Environment
 import Control.Applicative
 import Control.Monad
 
@@ -18,5 +18,14 @@ getLines = do
         getLines
         return ()
 
-main = getLines
+getFileLines :: FilePath -> IO ()
+getFileLines p = do
+    r <- parseFileRun p
+    putStrLn $ showResult r
+
+main = do
+    a <- getArgs
+    case a of
+        [] -> getLines
+        (p:_) -> getFileLines p
 

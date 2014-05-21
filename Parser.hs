@@ -1,7 +1,7 @@
 module Parser
-( parseString
+( ParseError
+, parseString
 , parseFile
-, ParseError
 ) where
 
 import Text.Parsec

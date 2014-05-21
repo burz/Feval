@@ -1,13 +1,14 @@
-module EFeval
+module EF
 ( F.Result(..)
 , Expr(..)
 , run
+, ParseError
 , parseRun
 ) where
 
 import Algebra
 import qualified FAST as FAST
-import qualified Feval as F
+import qualified F as F
 import EFAST
 import Parser
 

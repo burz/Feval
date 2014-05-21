@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 
-module Feval
+module F
 ( run_eval
 , run_typecheck
 , Result(..)

@@ -1,7 +1,7 @@
 import FAST
 import Algebra
-import qualified Feval as F
-import qualified EFeval as EF
+import qualified F as F
+import qualified EF as EF
 
 -- (2 + 3) * 4
 intExpr = Fx $ (Fx $ (Fx $ CInt 2) `Add` (Fx $ CInt 3)) `Mul` (Fx $ CInt 4)

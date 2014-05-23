@@ -1,13 +1,13 @@
 {-# LANGUAGE FlexibleInstances #-}
 
-module TypeAST
+module FVL.TypeAST
 ( Expr(..)
 , FType(..)
 , typeTransform
 ) where
 
-import Algebra
-import qualified FAST as FAST
+import FVL.Algebra
+import qualified FVL.FAST as FAST
 
 data Expr a b
     = CInt Integer

@@ -1,4 +1,4 @@
-module EF
+module FVL.EF
 ( F.Result(..)
 , Expr(..)
 , run
@@ -7,11 +7,11 @@ module EF
 , parseFileRun
 ) where
 
-import Algebra
-import qualified FAST as FAST
-import qualified F as F
-import EFAST
-import Parser
+import FVL.Algebra
+import qualified FVL.FAST as FAST
+import qualified FVL.F as F
+import FVL.EFAST
+import FVL.Parser
 
 argument :: String -> [String] -> Bool
 argument s [] = False

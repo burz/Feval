@@ -1,4 +1,4 @@
-module Type
+module FVL.Type
 ( typecheck
 ) where
 
@@ -7,8 +7,8 @@ import qualified Data.Set as Set
 import Control.Monad.State
 import Control.Applicative
 
-import Algebra
-import TypeAST
+import FVL.Algebra
+import FVL.TypeAST
 
 type Equation = (FType, FType)
 type Equations = Set.Set Equation

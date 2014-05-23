@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 
-module Algebra
+module FVL.Algebra
 ( Algebra
 , MAlgebra
 , Fix(..)

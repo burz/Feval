@@ -1,18 +1,18 @@
 {-# LANGUAGE FlexibleInstances #-}
 
-module F
+module FVL.F
 ( run_eval
 , run_typecheck
 , Result(..)
 , run
 ) where
 
-import FAST
-import EvalAST (evalTransform, RVal)
-import TypeAST (typeTransform, FType)
-import Algebra
-import Type
-import Eval
+import FVL.FAST
+import FVL.EvalAST (evalTransform, RVal)
+import FVL.TypeAST (typeTransform, FType)
+import FVL.Algebra
+import FVL.Type
+import FVL.Eval
 
 instance Show (Fix Expr) where
     show = show . evalTransform

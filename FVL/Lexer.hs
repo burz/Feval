@@ -1,4 +1,4 @@
-module Lexer
+module FVL.Lexer
 ( opNames
 , identifier
 , reserved

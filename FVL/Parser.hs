@@ -1,4 +1,4 @@
-module Parser
+module FVL.Parser
 ( ParseError
 , parseString
 , parseFile
@@ -10,9 +10,9 @@ import Text.Parsec.Expr
 import Control.Monad
 import Control.Applicative ((<$>), (<$), (<*>), (<*), (*>))
 
-import Algebra
-import EFAST
-import Lexer
+import FVL.Algebra
+import FVL.EFAST
+import FVL.Lexer
 
 type ExprParser = Parser (Fix Expr)
 

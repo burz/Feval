@@ -1,11 +1,11 @@
-module Eval
+module FVL.Eval
 ( eval
 ) where
 
 import Control.Applicative
 
-import Algebra
-import EvalAST
+import FVL.Algebra
+import FVL.EvalAST
 
 type EvalAlgebra = Algebra (Expr (LazyFix Expr)) (Maybe RVal)
 

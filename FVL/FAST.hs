@@ -1,8 +1,8 @@
-module FAST
+module FVL.FAST
 ( Expr(..)
 ) where
 
-import Algebra
+import FVL.Algebra
 
 data Expr a
     = CInt Integer

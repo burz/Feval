@@ -2,7 +2,7 @@ import System.Environment
 import Control.Applicative
 import Control.Monad
 
-import EF
+import FVL.EF
 
 showResult :: Either ParseError Result -> String
 showResult (Right (Result (e, t))) = "  => " ++ show e ++ "\n    : " ++ show t

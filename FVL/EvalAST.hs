@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 
-module EvalAST
+module FVL.EvalAST
 ( Expr(..)
 , RVal(..)
 , valueTransform
@@ -8,8 +8,8 @@ module EvalAST
 , evalTransform
 ) where
 
-import Algebra
-import qualified FAST as FAST
+import FVL.Algebra
+import qualified FVL.FAST as FAST
 
 data Expr a b
     = CInt Integer

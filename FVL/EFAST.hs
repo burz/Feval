@@ -1,10 +1,10 @@
 {-# LANGUAGE FlexibleInstances #-}
 
-module EFAST
+module FVL.EFAST
 ( Expr(..)
 ) where
 
-import Algebra
+import FVL.Algebra
 
 data Expr a
     = CInt Integer

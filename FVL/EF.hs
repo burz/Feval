@@ -1,6 +1,7 @@
 module FVL.EF
 ( F.Result(..)
 , Expr(..)
+, showTranslation
 , run
 , ParseError
 , parseRun
@@ -94,6 +95,9 @@ alg (Case p x s t y) = Fx $ FAST.Case p x s t y
 
 translate :: Fix Expr -> Fix FAST.Expr
 translate = cata alg
+
+showTranslation :: Fix Expr -> String
+showTranslation = show . translate
 
 run :: Fix Expr -> F.Result
 run = F.run . translate

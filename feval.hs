@@ -2,7 +2,13 @@ import System.Environment
 import Control.Applicative
 import Control.Monad
 
+import FVL.Parser
 import FVL.EF
+
+parseTranslateShow :: String -> Either ParseError String
+parseTranslateShow s = case parseString s of
+    Left e -> Left e
+    Right e -> Right $ showTranslation e
 
 showResult :: Either ParseError Result -> String
 showResult (Right (Result (e, t))) = "  => " ++ show e ++ "\n    : " ++ show t

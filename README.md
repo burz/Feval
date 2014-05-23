@@ -39,6 +39,14 @@ Function x -> Case True : x Of [] -> True | (y : ys) -> True || !(y || False)
 ```
 To quit simply press ctrl-d.
 
+Since the REPL can only handle one line expressions, we also allow `feval` to take a file to execute as an argument.
+For instance, with the provided file mergesort.fvl:
+```
+$ feval mergesort.fvl
+  => [-34, 3, 4, 23]
+    : [Int]
+```
+
 ## Expressions
 
 ### Boolean Operations

@@ -1,0 +1,15 @@
+Let compare x y = If x > y Then -1 Else If x = y Then 0 Else 1 In
+Let combine x y = Case x Of
+    []       -> y
+    (z : zs) -> Case y Of
+        []       -> x
+        (w : ws) -> Let r = compare z w In If r <= 0
+            Then w : z : combine zs ws
+            Else z : w : combine zs ws In
+Let mergesort x = Let mergesort' x l r = Case x Of
+    []       -> combine (mergesort l) (mergesort r)
+    (z : zs) -> Case zs Of
+        []       -> x
+        (w : ws) -> mergesort' ws (z : l) (w : r)
+In mergesort' x [] []
+In mergesort [4, 23, -34, 3]

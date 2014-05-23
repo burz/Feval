@@ -5,45 +5,89 @@ Author: Anthony Burzillo
 
 ******
 
-Feval is a functional programming language evaluator that uses f-algebras as opposed to classic recursion to solve
-the problem of evaluation and typechecking.
+Feval is a statically typed functional programming language that uses f-algebras as opposed to classic recursion to solve
+the problem of evaluation and typechecking, which allows the compiler to perform better optimizations.
 
-For an example, in the language of feval one can represent the following function
+The overall language of Feval is EF, which is an extension of the smaller language F. In order to run a program written
+in EF, we first use an f-algebra to transform the AST to F, and then we transform the result (via an f-algebra) into
+the individual AST's used by the evaluator's f-algebra and the typechecker's f-algebra. The reason we need to use
+seperate f-algebras is because we need to stall the processing of certain subtrees of the AST in order to ensure correct
+evaluation and typechecking. For instance, we cannot evaluate the expression of a anonymous function until we have
+obtained its argument. Similarly, we cannot typecheck a function until we have assigned a type hypothesis to the variable.
 
+## Usage
+
+To build Feval simply run `make`, which builds both `feval` and `examples` (the latter evaluates some example expressions).
+Then you can run `feval` which acts as a REPL for Feval:
 ```
-(Function x -> x + 4)
+$ ./feval
+Function x -> x && True
+  => Function x -> x && True
+    : Bool -> Bool
+(Function x -> Function y -> x + y / 50) 5
+  => Function y -> 5 + y / 50
+    : Int -> Int
+Let f x = If x = 0 Then 1 Else x * f (x - 1) In f 6
+  => 720
+    : Int
+Case [1, 2, 3, 4] Of [] -> 0 | (x : xs) -> x + 6
+  => 7
+    : Int
+Function x -> Case True : x Of [] -> True | (y : ys) -> True || !(y || False)
+  => Function x -> Case True Of [] -> True | (y, ys) -> True || !(y || False)
+    : [Bool] -> Bool
+```
+To quit simply press ctrl-d.
+
+## Expressions
+
+### Boolean Operations
+
+We allow conjunction (&&), disjunction (||), and negation (!) expressions.
+
+### Integer Operations
+
+The operations of addition (+), subtraction (-), multiplication (*), division (/), and modulus (%) evaluate to integer
+values. On the other hand, the comparison operators of equality (=), less-than (<), less-than-or-equal (<=), greater-than
+(>), and greater-than-or-equal (>=) all evaluate to boolean values.
+
+### Functional Operations
+
+We allow the creation of anonymous functions via `Function x -> e` where `e` is some expression, and `x` is the argument
+to the function. We can create multiple argument anonymous functions via `Function x -> Function y -> e` where `x` is
+the first argument and `y` is the second, etc.
+
+To apply a function `f` simply use `f e` where `e` is the expression for the first argument, or `f e1 e2` for the first
+argument `e1` and second argument `e2`.
+
+### If Expressions
+
+Use `If e1 Then e2 Else e3`.
+
+### Let Expressions
+
+We allow let expressions to define constants and functions (possibly recursive) via
+```
+Let x = 4 In x + 54
+```
+and
+```
+Let f x y = If x = 0 Then 0 Else y + f (x - 1) y In f 3 4
 ```
 
-as (in Haskell)
+### Semi-colon Expressions
 
+An expression of the form `e1; e2` first evaluates `e1` then `e2` and returns the result of `e2`.
+
+### List Expressions
+
+You can create empty lists `[]` or lists with values `[1, 2, 3, 4]`. You can cons values onto a list via
 ```
-func = Fx $ Function "x" (Fx $ Add (Fx $ CVar "x") (Fx $ CInt 4))
+5 : [4, 5, 6]
+  => [5, 4, 5, 6] 
+    : [Int]
 ```
-
-We can evaluate this function by running
-
+Finally, we can match on lists via a case expression via
 ```
-run func
-=> Result (Function x -> x + 4,Int -> Int)
-```
-
-which says that the result of evaluating the expression is a function with type Int -> Int.
-
-(A good introduction to f-algebras is found [here](https://www.fpcomplete.com/user/bartosz/understanding-algebras))
-
-******
-
-In order to compile EFeval, or Extended Feval, which includes exprssions like `Let x x ... x = e In e`
-(possibly recursive) or `e; e`, we transform it via an f-algebra to the smaller language Feval which includes only
-function application and LetRec, which allows for recursion. Similarly both eval and typecheck use their own f-algebras
-using types which allow us to delay the evaluation of certain parts of the AST until needed.
-
-Check out [GRAMMAR.txt](GRAMMAR.txt) to see what kinds of expressions each of EFeval and Feval can define, as well as
-[examples.hs](examples.hs) for some example expressions.
-
-For ease of use at the moment the expressions of EFeval and FEval are instances of Show so
-
-```
-Fx $ Function "x" (Fx $ Add (Fx $ CVar "x") (Fx $ CInt 4))
-=> Function x -> x + 4
+Case e1 Of [] -> e2 | (x : xs) -> e3
 ```

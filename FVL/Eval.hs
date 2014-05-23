@@ -66,7 +66,9 @@ alg (CVar s) = Nothing
 alg (x `Add` y) = x >>= \x' -> y >>= \y' -> integer_operation (+) x' y'
 alg (x `Sub` y) = x >>= \x' -> y >>= \y' -> integer_operation (-) x' y'
 alg (x `Mul` y) = x >>= \x' -> y >>= \y' -> integer_operation (*) x' y'
-alg (x `Div` y) = x >>= \x' -> y >>= \y' -> integer_operation quot x' y'
+alg (x `Div` y) = x >>= \x' -> y >>= \y' -> case y' of
+    (RInt 0) -> Nothing
+    _ -> integer_operation quot x' y'
 alg (x `And` y) = x >>= \x' -> y >>= \y' -> boolean_operation (&&) x' y'
 alg (x `Or` y) = x >>= \x' -> y >>= \y' -> boolean_operation (||) x' y'
 alg (Not x) = x >>= \x' -> case x' of

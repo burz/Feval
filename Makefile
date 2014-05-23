@@ -19,5 +19,5 @@ feval: $(SRCS)
 	ghc feval.hs
 
 clean:
-	rm -f *.o *.hi examples feval && rm -f FVL/*.o FVL/*.hi
+	rm -f *.o *.hi && rm -f FVL/*.o FVL/*.hi
 

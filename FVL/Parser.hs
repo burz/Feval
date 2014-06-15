@@ -53,11 +53,7 @@ opExpr :: ExprParser
 opExpr = buildExpressionParser opTable term
 
 list :: ExprParser
-list = do
-    reservedOp "["
-    l <- sepBy expr comma
-    reservedOp "]"
-    return $ toCons l
+list = toCons <$> brackets (commaSep expr)
     where toCons [] = Fx Empty
           toCons (x:xs) = Fx $ Cons x (toCons xs)
 
@@ -84,7 +80,7 @@ letExpr = reserved "Let" *> do
 caseExpr :: ExprParser
 caseExpr = reserved "Case" *> do
     p <- expr
-    reserved "Of" *> reservedOp "[" *> reservedOp "]" *> reservedOp "->"
+    reserved "Of" *> symbol "[" *> symbol "]" *> reservedOp "->"
     x <- expr
     reservedOp "|"
     (s, t) <- parens $ do{ s' <- identifier

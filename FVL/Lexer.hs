@@ -1,10 +1,12 @@
 module FVL.Lexer
 ( opNames
 , identifier
+, symbol
 , reserved
 , reservedOp
 , parens
-, comma
+, brackets
+, commaSep
 , integer
 , whiteSpace
 ) where
@@ -14,7 +16,7 @@ import qualified Text.Parsec.Token as Token
 import Text.Parsec.Language
 
 names = words "True False Function If Then Else Let In Case Of"
-opNames = words "-> && || ! + - * / % = ; < <= > >= : [ ]"
+opNames = words "-> && || ! + - * / % = ; < <= > >= :"
 
 lexer = Token.makeTokenParser emptyDef
     { Token.commentStart = "/*"
@@ -27,10 +29,12 @@ lexer = Token.makeTokenParser emptyDef
     }
 
 identifier = Token.identifier lexer
-reserved = Token.reserved lexer
+symbol     = Token.symbol lexer
+reserved   = Token.reserved lexer
 reservedOp = Token.reservedOp lexer
-parens = Token.parens lexer
-comma = Token.comma lexer
-integer = Token.integer lexer
+parens     = Token.parens lexer
+brackets   = Token.brackets lexer
+commaSep   = Token.commaSep lexer
+integer    = Token.integer lexer
 whiteSpace = Token.whiteSpace lexer
 

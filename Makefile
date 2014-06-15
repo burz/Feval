@@ -12,10 +12,10 @@ SRCS = FVL/Algebra.hs \
 
 all: examples feval
 
-examples: $(SRCS)
-	ghc examples.hs
+examples: $(SRCS) examples.hs
+	ghc -rtsopts examples.hs
 
-feval: $(SRCS)
+feval: $(SRCS) feval.hs
 	ghc feval.hs
 
 clean:

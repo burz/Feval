@@ -1,5 +1,6 @@
 module FVL.Lexer
-( opNames
+( names
+, opNames
 , identifier
 , symbol
 , reserved

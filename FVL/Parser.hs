@@ -65,8 +65,10 @@ function :: ExprParser
 function = reserved "Function" *> ((\x -> Fx . Function x)
     <$> identifier <*> (reservedOp "->" *> expr))
 
-appl = Infix (whiteSpace *> notFollowedBy (choice $ map reservedOp opNames)
-    *> return (\x y -> Fx $ Appl x y)) AssocLeft
+appl = Infix space AssocLeft
+    where space = whiteSpace
+            *> notFollowedBy (choice . map reservedOp $ opNames)
+            *> return (\x y -> Fx $ Appl x y)
 
 letExpr :: ExprParser
 letExpr = reserved "Let" *> do

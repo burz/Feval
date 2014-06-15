@@ -43,8 +43,9 @@ substitute s v (Fx' (LetRec f x p e)) = Fx' $ if f == s
     else if x == s
         then LetRec f x p (substitute s v e)
         else LetRec f x (substitute s v p) (substitute s v e)
-substitute s v (Fx' (Case p x l l' y))
-    = Fx' $ Case (substitute s v p) (substitute s v x) l l' (substitute s v y)
+substitute s v (Fx' (Case p x l l' y)) = if l == s || l' == s
+    then Fx' $ Case (substitute s v p) (substitute s v x) l l' y
+    else Fx' $ Case (substitute s v p) (substitute s v x) l l' (substitute s v y)
 
 apply :: RVal -> LazyFix Expr -> Maybe RVal
 apply (RFunction x p) e = eval e >>= \v -> eval $ substitute x v p

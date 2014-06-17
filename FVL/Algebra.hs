@@ -30,7 +30,7 @@ lazyCata :: Functor (f (LazyFix f)) => Algebra (f (LazyFix f)) a -> LazyFix f ->
 lazyCata alg = alg . fmap (lazyCata alg) . lazyUnFix
 
 mcata :: Functor f => MAlgebra m f a -> Fix f -> m a
-mcata alg = alg . fmap (cata alg) . unFix
+mcata alg = alg . fmap (mcata alg) . unFix
 
 lazyMCata :: Functor (f (LazyFix f)) => MAlgebra m (f (LazyFix f)) a -> LazyFix f -> m a
 lazyMCata alg = alg . fmap (lazyMCata alg) . lazyUnFix

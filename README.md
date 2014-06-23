@@ -15,6 +15,8 @@ seperate f-algebras is because we need to stall the processing of certain subtre
 evaluation and typechecking. For instance, we cannot evaluate the expression of a anonymous function until we have
 obtained its argument. Similarly, we cannot typecheck a function until we have assigned a type hypothesis to the variable.
 
+For more information on how we solve these problems, check out the article [Feval: F-Algebras for expression evaluation](http://burz.github.io/2014/06/15/feval.html).
+
 ## Usage
 
 To build Feval simply run `make`, which builds both `feval` and `examples` (the latter evaluates some example expressions).

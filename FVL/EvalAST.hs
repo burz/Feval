@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE DeriveFunctor #-}
 
 module FVL.EvalAST
 ( Expr(..)
@@ -31,27 +32,7 @@ data Expr a b
     | Appl b a
     | LetRec String String a a
     | Case b a String String a
-
-instance Functor (Expr (LazyFix Expr)) where
-    fmap eval (CInt n) = CInt n
-    fmap eval (CBool b) = CBool b
-    fmap eval (CVar s) = CVar s
-    fmap eval (x `Add` y) = eval x `Add` eval y
-    fmap eval (x `Sub` y) = eval x `Sub` eval y
-    fmap eval (x `Mul` y) = eval x `Mul` eval y
-    fmap eval (x `Div` y) = eval x `Div` eval y
-    fmap eval (x `And` y) = eval x `And` eval y
-    fmap eval (x `Or` y) = eval x `Or` eval y
-    fmap eval (Not x) = Not $ eval x
-    fmap eval (x `Equal` y) = eval x `Equal` eval y
-    fmap eval (x `Less` y) = eval x `Less` eval y
-    fmap eval Empty = Empty
-    fmap eval (x `Cons` y) = eval x `Cons` eval y
-    fmap eval (If p e1 e2) = If (eval p) e1 e2
-    fmap eval (Function s p) = Function s p
-    fmap eval (Appl f x) = Appl (eval f) x
-    fmap eval (LetRec f x p e) = LetRec f x p e
-    fmap eval (Case p x s t y) = Case (eval p) x s t y
+    deriving Functor
 
 showCons' :: LazyFix Expr -> [LazyFix Expr]
 showCons' (Fx' (x `Cons` y)) = x : showCons' y

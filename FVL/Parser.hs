@@ -82,7 +82,7 @@ letExpr = reserved "Let" *> do
 caseExpr :: ExprParser
 caseExpr = reserved "Case" *> do
     p <- expr
-    reserved "Of" *> symbol "[" *> symbol "]" *> reservedOp "->"
+    reserved "Of" *> symbol "[]" *> reservedOp "->"
     x <- expr
     reservedOp "|"
     (s, t) <- parens $ do{ s' <- identifier

@@ -1,7 +1,8 @@
 ## Grammar for Feval
 
 x ::= ( a | b | ... | z )
-      ( A | B | ... | Z
+      ( a | b | ... | z
+      | A | B | ... | Z
       | 0 | 1 | ... | 9
       | _ | ' )*
 
@@ -24,7 +25,8 @@ e ::=   v
 ## Grammar for EFeval
 
 x ::= ( a | b | ... | z )
-      ( A | B | ... | Z
+      ( a | b | ... | z
+      | A | B | ... | Z
       | 0 | 1 | ... | 9
       | _ | ' )*
 

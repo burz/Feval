@@ -15,7 +15,7 @@ seperate f-algebras is because we need to stall the processing of certain subtre
 evaluation and typechecking. For instance, we cannot evaluate the expression of a anonymous function until we have
 obtained its argument. Similarly, we cannot typecheck a function until we have assigned a type hypothesis to the variable.
 
-For more information on how we solve these problems, check out the article [Feval: F-Algebras for expression evaluation](http://burz.github.io/2014/06/15/feval.html).
+For more information on how we solve these problems, check out the article [Feval: F-Algebras for expression evaluation](http://burz.github.io/2014/06/15/feval.html). For an in-depth explanation of parsing see [Feval: Parsing a functional language with Parsec](http://burz.github.io/2014/06/24/parsing.html)
 
 ## Usage
 

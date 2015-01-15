@@ -6,10 +6,14 @@ Let combine x y = Case x Of
         | (w : ws) -> Let r = compare z w In If r <= 0
             Then w : z : combine zs ws
             Else z : w : combine zs ws In
-Let mergesort x = Let mergesort' x l r = Case x Of
-      []       -> combine (mergesort l) (mergesort r)
-    | (z : zs) -> Case zs Of
-          []       -> combine (mergesort (z : l)) (mergesort r)
-        | (w : ws) -> mergesort' ws (z : l) (w : r)
-In mergesort' x [] []
+Let mergesort x = Case x Of
+      [] -> []
+    | (y : ys) -> Case ys Of
+          [] -> [y]
+        | (a : b) -> Let mergesort' x l r = Case x Of
+              []       -> combine (mergesort l) (mergesort r)
+            | (z : zs) -> Case zs Of
+                  []       -> combine (mergesort (z : l)) (mergesort r)
+                | (w : ws) -> mergesort' ws (z : l) (w : r)
+            In mergesort' x [] []
 In mergesort [4, 23, -34, 3]

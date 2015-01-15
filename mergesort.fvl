@@ -9,7 +9,7 @@ Let combine x y = Case x Of
 Let mergesort x = Let mergesort' x l r = Case x Of
       []       -> combine (mergesort l) (mergesort r)
     | (z : zs) -> Case zs Of
-          []       -> x
+          []       -> combine (mergesort (z : l)) (mergesort r)
         | (w : ws) -> mergesort' ws (z : l) (w : r)
 In mergesort' x [] []
 In mergesort [4, 23, -34, 3]

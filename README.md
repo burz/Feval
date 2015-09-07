@@ -19,8 +19,8 @@ For more information on how we solve these problems, check out the article [Feva
 
 ## Usage
 
-To build Feval simply run `make`, which builds both `feval` and `examples` (the latter evaluates some example expressions).
-Then you can run `feval` which acts as a REPL for Feval:
+To build Feval run `cabal configure && cabal build && cabal install`.
+Then you can run `Feval` which acts as a REPL:
 ```
 $ ./feval
 Function x -> x && True

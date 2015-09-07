@@ -1,4 +1,11 @@
 *.o
 *.hi
+
+.cabal-sandbox
+cabal.sandbox.config
+cabal.config
+dist
+dist-*
+
 examples
 feval

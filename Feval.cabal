@@ -16,7 +16,11 @@ version:             1.0.0.0
 synopsis:            Evaluation using F-Algebras
 
 -- A longer description of the package.
--- description:         
+description:
+    Feval is a statically typed functional programming language that
+    uses f-algebras as opposed to classic recursion to solve the problem
+    of evaluation and typechecking, which allows the compiler to perform
+    better optimizations.
 
 -- URL for the project homepage or repository.
 homepage:            http://github.com/burz/Feval
@@ -45,8 +49,12 @@ build-type:          Simple
 cabal-version:       >=1.8
 
 flag buildExamples
-    description:        Build example executables
-    default:            False
+    description: Build example executables
+    default: False
+
+source-repository    head
+    type:            git
+    location:        git://github.com/burz/Feval.git
 
 executable Feval
   -- .hs or .lhs file containing the Main module.
